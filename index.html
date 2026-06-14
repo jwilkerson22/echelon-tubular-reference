@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
+  <title>Echelon IPM – Tubular Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f0f3f6;--panel:#fff;--line:#cdd5de;--text:#17212b;--muted:#5a6e80;
+      --accent:#b87333;--accent-d:#8e531f;--good:#277a33;--warn:#a76017;--bad:#b43030;
+      --shadow:0 6px 22px rgba(15,23,42,.08);--r:18px;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;font-family:'Barlow',sans-serif;font-size:16px;background:var(--bg);color:var(--text);min-height:100vh}
+    .app{max-width:1080px;margin:0 auto;padding:12px 12px 110px}
+
+    /* TOP */
+    .top{position:sticky;top:8px;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:10px;
+      background:rgba(255,255,255,.95);backdrop-filter:blur(14px);
+      border:1px solid rgba(23,33,43,.08);border-radius:22px;padding:10px 14px;box-shadow:var(--shadow)}
+    .brand{display:flex;gap:11px;align-items:center}
+    .logo-box{width:46px;height:46px;flex:0 0 46px;border-radius:13px;
+      background:linear-gradient(145deg,#253040,#151d27);display:grid;place-items:center}
+    .logo-box svg{width:28px;height:28px}
+    .t-eye{font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}
+    .t-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;line-height:1;font-weight:700}
+    .t-sub{font-size:11.5px;color:var(--muted)}
+    .top-btns{display:flex;gap:8px;flex-shrink:0}
+    button{appearance:none;border:none;border-radius:14px;min-height:46px;padding:10px 14px;
+      font:700 14px 'Barlow',sans-serif;cursor:pointer;line-height:1;transition:filter .15s}
+    button:hover{filter:brightness(1.07)}
+    .btn-a{background:var(--accent);color:#fff}
+    .btn-g{background:#fff;border:1px solid var(--line);color:var(--text)}
+    .btn-s{background:#edf1f5;color:var(--text)}
+    .file-lbl{display:flex;align-items:center;padding:10px 14px;border-radius:14px;background:#edf1f5;
+      font:700 14px 'Barlow',sans-serif;cursor:pointer;min-height:46px;border:1px solid var(--line)}
+
+    /* HERO */
+    .hero{margin-top:12px;background:linear-gradient(155deg,rgba(184,115,51,.11),#fff 55%);
+      border:1px solid rgba(23,33,43,.07);border-radius:24px;padding:16px 18px;box-shadow:var(--shadow)}
+    .hero h1{margin:0;font-family:'Barlow Condensed',sans-serif;font-size:32px;line-height:1.1;font-weight:700}
+    .hero p{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:70ch}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+    .kpi{background:rgba(0,0,0,.04);border:1px solid rgba(23,33,43,.07);border-radius:16px;padding:10px}
+    .kpi .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
+    .kpi .kv{font-size:22px;font-weight:700;margin-top:5px}
+
+    /* NAV */
+    .nav-wrap{margin-top:12px;background:#fff;border:1px solid rgba(23,33,43,.07);border-radius:20px;padding:7px;box-shadow:var(--shadow)}
+    .nav{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+    .nav button{background:transparent;border:1px solid transparent;color:var(--muted);min-height:48px;font-size:14px}
+    .nav button.on{background:#fff7ee;border-color:#d9a96c;color:var(--text)}
+
+    /* PANELS */
+    .panel{margin-top:12px;background:var(--panel);border:1px solid rgba(23,33,43,.07);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
+    .ph2{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;margin:0}
+    .psub{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:72ch}
+
+    .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+    .field input,.field select{width:100%;min-height:50px;border:1px solid var(--line);border-radius:13px;padding:12px;background:#fff;color:var(--text);font:inherit}
+    .field input:focus,.field select:focus{outline:2px solid var(--accent);border-color:transparent}
+    .field input[readonly]{background:#f2f6f9;color:var(--muted)}
+
+    .bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+
+    .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .pill{padding:6px 11px;border-radius:999px;background:#edf1f5;border:1px solid var(--line);font-size:13px}
+    .pill.good{background:#edf7ee;border-color:#a8d4ad;color:var(--good)}
+    .pill.warn{background:#fff7ed;border-color:#f0d0a5;color:var(--warn)}
+
+    .result{background:#f4f7fa;border:1px solid var(--line);border-radius:16px;padding:12px}
+    .result .rl{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+    .result .rv{font-size:22px;font-weight:700;margin-top:5px}
+
+    .card{background:#f4f7fa;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}
+    .card h3{margin:0 0 6px;font-size:17px}
+    .card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6}
+
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;margin-top:12px}
+    table{width:100%;border-collapse:collapse;min-width:700px}
+    th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13.5px}
+    th{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);background:#f4f7f9;position:sticky;top:0;z-index:2}
+    tr:last-child td{border-bottom:none}
+    td input,td select{width:100%;min-height:40px;border:1px solid var(--line);border-radius:11px;padding:7px 9px;font:inherit}
+
+    .preview{background:#f2f6f9;border:1px solid var(--line);border-radius:16px;min-height:230px;
+      display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);
+      padding:12px;overflow:hidden;font-size:14px}
+    .preview img,.preview video{width:100%;max-height:280px;object-fit:contain;border-radius:12px}
+
+    .sticky-bar{position:sticky;bottom:10px;display:flex;gap:10px;margin-top:12px;
+      background:#fff;border:1px solid rgba(23,33,43,.08);border-radius:18px;
+      padding:10px;box-shadow:var(--shadow)}
+    .sticky-bar button{flex:1}
+
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    .hidden{display:none!important}
+    .mt{margin-top:12px}
+    .mt8{margin-top:8px}
+    .small{font-size:13px;color:var(--muted)}
+
+    @media(max-width:720px){
+      .kpis,.nav,.g2,.g3,.g4{grid-template-columns:1fr}
+      .top{flex-direction:column;align-items:flex-start}
+      .top-btns{width:100%}
+      .top-btns button{flex:1}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="top">
+    <div class="brand">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="13" height="2.8" rx="1.4" fill="#B87333"/>
+          <rect x="3" y="10.6" width="9.5" height="2.8" rx="1.4" fill="#C8D2DC"/>
+          <rect x="3" y="16.2" width="13" height="2.8" rx="1.4" fill="#B87333"/>
+        </svg>
+      </div>
+      <div>
+        <div class="t-eye">Echelon IPM</div>
+        <div class="t-title">Tubular Reference &amp; Tally</div>
+        <div class="t-sub">Complete OCTG catalog · Volume calculations · Tally scan &amp; export</div>
+      </div>
+    </div>
+    <div class="top-btns">
+      <button class="btn-g" id="demoBtn">Load Demo</button>
+      <button class="btn-a" id="exportBtn">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Upstream tubular intelligence — field-ready.</h1>
+    <p>Select any OCTG product line from 1.050&quot; tubing through 20&quot; conductor casing. ID, wall, drift, and strength data fill automatically from the built-in API 5CT / 5DP / Spec 7-1 catalog. Calculate string capacity, annular volume, displacement, circulation, and hydrostatics. Photograph any handwritten pipe tally with the phone camera and convert it to a clean electronic table for export.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="kl">Selected OD</div><div class="kv" id="kOd">— in</div></div>
+      <div class="kpi"><div class="kl">Catalog ID</div><div class="kv" id="kId">— in</div></div>
+      <div class="kpi"><div class="kl">Tally depth</div><div class="kv" id="kDepth">0 ft</div></div>
+      <div class="kpi"><div class="kl">Full circulation</div><div class="kv" id="kCirc">0 bbl</div></div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav-wrap">
+    <div class="nav">
+      <button class="on" data-v="ref">Reference</button>
+      <button data-v="cap">Capacity</button>
+      <button data-v="ann">Annulus</button>
+      <button data-v="tally">Tally</button>
+      <button data-v="res">Results</button>
+    </div>
+  </div>
+
+  <!-- ========== REFERENCE ========== -->
+  <div class="panel" id="pref">
+    <div class="ph2">Tubular dimensions &amp; strengths</div>
+    <div class="psub">Select any OCTG family, OD, and weight. ID, wall thickness, drift diameter, collapse, burst, and body yield fill from the API catalog. All standard sizes and weights are included for every family.</div>
+    <div class="g2">
+      <div class="field">
+        <label>Family</label>
+        <select id="selFamily"></select>
+      </div>
+      <div class="field">
+        <label>OD (in)</label>
+        <select id="selOd"></select>
+      </div>
+      <div class="field">
+        <label>Weight (lb/ft)</label>
+        <select id="selWt"></select>
+      </div>
+      <div class="field">
+        <label>Catalog ID (in)</label>
+        <input id="fId" readonly>
+      </div>
+      <div class="field">
+        <label>Wall thickness (in)</label>
+        <input id="fWall" readonly>
+      </div>
+      <div class="field">
+        <label>Drift diameter (in)</label>
+        <input id="fDrift" readonly>
+      </div>
+      <div class="field">
+        <label>Collapse resistance (psi)</label>
+        <input id="fCollapse" readonly>
+      </div>
+      <div class="field">
+        <label>Burst resistance (psi)</label>
+        <input id="fBurst" readonly>
+      </div>
+      <div class="field">
+        <label>Body yield / tension (lb)</label>
+        <input id="fTension" readonly>
+      </div>
+      <div class="field">
+        <label>Common API grades</label>
+        <input id="fGrades" readonly>
+      </div>
+    </div>
+    <div class="bar">
+      <button class="btn-s" id="useCapBtn">Use in Capacity calc</button>
+      <button class="btn-s" id="copyRefBtn">Copy to clipboard</button>
+    </div>
+    <div class="pills" id="refPills"><div class="pill">Select a tubular above</div></div>
+  </div>
+
+  <!-- ========== CAPACITY ========== -->
+  <div class="panel hidden" id="pcap">
+    <div class="ph2">String capacity &amp; displacement</div>
+    <div class="psub">OD and ID carry forward from the Reference tab. Override if needed. Capacity is the internal fluid volume per foot. Displacement is the steel body volume per foot (used for calculating fluid displaced when running pipe).</div>
+    <div class="g3">
+      <div class="field"><label>Pipe OD (in)</label><input id="cOd" type="number" step="0.001"></div>
+      <div class="field"><label>Pipe ID (in)</label><input id="cId" type="number" step="0.001"></div>
+      <div class="field"><label>String length (ft)</label><input id="cLen" type="number" step="0.1"></div>
+      <div class="field">
+        <label>Output unit</label>
+        <select id="cUnit">
+          <option value="bbl">bbl</option>
+          <option value="gal">gal</option>
+          <option value="ft3">ft³</option>
+        </select>
+      </div>
+    </div>
+    <div class="bar"><button class="btn-a" id="runCapBtn">Calculate</button></div>
+    <div class="g3">
+      <div class="result"><div class="rl">Capacity</div><div class="rv" id="rCapFt">—</div></div>
+      <div class="result"><div class="rl">String volume</div><div class="rv" id="rCapTot">—</div></div>
+      <div class="result"><div class="rl">Displacement</div><div class="rv" id="rDisp">—</div></div>
+    </div>
+    <div class="card">
+      <h3>Formulas</h3>
+      <p>Capacity (bbl/ft) = ID² ÷ 1029.4 &nbsp;|&nbsp; Displacement (bbl/ft) = (OD² − ID²) ÷ 1029.4 &nbsp;|&nbsp; String volume = Capacity × Length (ft) &nbsp;|&nbsp; Gallons = bbl × 42 &nbsp;|&nbsp; ft³ = bbl × 5.6146</p>
+    </div>
+  </div>
+
+  <!-- ========== ANNULUS ========== -->
+  <div class="panel hidden" id="pann">
+    <div class="ph2">Annular volume &amp; hydrostatics</div>
+    <div class="psub">Calculate annular volume between the selected pipe OD and either the open hole or a casing inner wall. Look up casing ID by selecting casing OD and weight from the full catalog — no manual entry needed.</div>
+    <div class="divider"></div>
+    <div class="small"><strong>Pipe in open hole</strong></div>
+    <div class="g3" style="margin-top:10px">
+      <div class="field"><label>Pipe OD (in) — from reference</label><input id="aOd" type="number" step="0.001"></div>
+      <div class="field"><label>Open hole diameter (in)</label><input id="aHole" type="number" step="0.001" placeholder="e.g. 8.75"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="small"><strong>Pipe in cased hole — look up casing ID</strong></div>
+    <div class="g2" style="margin-top:10px">
+      <div class="field"><label>Casing OD (in)</label><select id="aCsgOd"></select></div>
+      <div class="field"><label>Casing weight (lb/ft)</label><select id="aCsgWt"></select></div>
+      <div class="field"><label>Casing ID (in) — auto-filled</label><input id="aCsgId" readonly></div>
+    </div>
+    <div class="bar">
+      <button class="btn-s" id="lookupAnnBtn">Look up casing ID</button>
+    </div>
+    <div class="pills" id="annStatus"><div class="pill">Select casing and click look up</div></div>
+    <div class="divider"></div>
+    <div class="g2">
+      <div class="field"><label>Interval length (ft)</label><input id="aLen" type="number" step="0.1"></div>
+      <div class="field"><label>Mud weight (ppg)</label><input id="aMw" type="number" step="0.1" value="9.5"></div>
+      <div class="field"><label>Depth for hydrostatic (ft TVD)</label><input id="aHydDepth" type="number" step="1"></div>
+    </div>
+    <div class="bar"><button class="btn-a" id="runAnnBtn">Calculate</button></div>
+    <div class="g3">
+      <div class="result"><div class="rl">Annular capacity</div><div class="rv" id="rAnnCap">—</div></div>
+      <div class="result"><div class="rl">Annular volume</div><div class="rv" id="rAnnVol">—</div></div>
+      <div class="result"><div class="rl">Hydrostatic</div><div class="rv" id="rHyd">—</div></div>
+    </div>
+    <div class="card">
+      <h3>Formulas</h3>
+      <p>Annular capacity (bbl/ft) = (D_outer² − D_pipe_OD²) ÷ 1029.4 &nbsp;|&nbsp; where D_outer is open hole diameter or casing ID (in) &nbsp;|&nbsp; Annular volume = Annular capacity × Length (ft) &nbsp;|&nbsp; Hydrostatic (psi) = 0.052 × MW (ppg) × TVD (ft)</p>
+    </div>
+  </div>
+
+  <!-- ========== TALLY ========== -->
+  <div class="panel hidden" id="ptally">
+    <div class="ph2">Tally scan &amp; electronic table</div>
+    <div class="psub">Photograph a handwritten tally sheet using the phone camera or upload an image file. Review the captured image visually, then enter or correct joint number, measured joint length, and pipe type in the table. Use Rebuild Cumulative to auto-calculate running depth. Validate the tally for errors before exporting to CSV.</div>
+    <div class="g2">
+      <div class="preview" id="camWrap">
+        <video id="vid" class="hidden" autoplay playsinline muted></video>
+        <canvas id="cnvs" class="hidden" style="display:none"></canvas>
+        <div id="camHint">Camera feed or captured image appears here.</div>
+      </div>
+      <div class="preview" id="imgWrap">Captured or uploaded tally image will display here for visual reference while entering rows.</div>
+    </div>
+    <div class="bar">
+      <button class="btn-a" id="openCamBtn">Open camera</button>
+      <label class="file-lbl">
+        Upload photo
+        <input type="file" id="imgFile" accept="image/*" class="hidden"/>
+      </label>
+      <button class="btn-s hidden" id="snapBtn">Snap photo</button>
+      <button class="btn-g hidden" id="stopCamBtn">Stop camera</button>
+    </div>
+    <div class="divider"></div>
+    <div class="bar">
+      <button class="btn-a" id="addRowBtn">+ Add row</button>
+      <button class="btn-s" id="rebuildBtn">Rebuild cumulative</button>
+      <button class="btn-g" id="validateBtn">Validate tally</button>
+    </div>
+    <div class="pills" id="tallyStatus"><div class="pill">No validation run yet</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Joint #</th>
+            <th>Length (ft)</th>
+            <th>Cumulative (ft)</th>
+            <th>Pipe family</th>
+            <th>Grade</th>
+            <th>Notes</th>
+            <th>Del</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== RESULTS ========== -->
+  <div class="panel hidden" id="pres">
+    <div class="ph2">Combined wellbore summary</div>
+    <div class="psub">Press Run All to compute every calculation from current inputs on all tabs. Full circulation = string volume + annular volume. Use this screen for pre-job planning or an office record before filing the tally.</div>
+    <div class="bar"><button class="btn-a" id="runAllInner">Run All</button></div>
+    <div class="g4">
+      <div class="result"><div class="rl">Tally depth</div><div class="rv" id="rrDepth">— ft</div></div>
+      <div class="result"><div class="rl">Pipe ID</div><div class="rv" id="rrId">— in</div></div>
+      <div class="result"><div class="rl">Wall</div><div class="rv" id="rrWall">— in</div></div>
+      <div class="result"><div class="rl">Capacity</div><div class="rv" id="rrCap">— bbl/ft</div></div>
+      <div class="result"><div class="rl">String vol</div><div class="rv" id="rrStr">— bbl</div></div>
+      <div class="result"><div class="rl">Displacement</div><div class="rv" id="rrDisp">— bbl/ft</div></div>
+      <div class="result"><div class="rl">Ann capacity</div><div class="rv" id="rrAnn">— bbl/ft</div></div>
+      <div class="result"><div class="rl">Ann volume</div><div class="rv" id="rrAnnV">— bbl</div></div>
+      <div class="result"><div class="rl">Full circulation</div><div class="rv" id="rrCirc">— bbl</div></div>
+      <div class="result"><div class="rl">Hydrostatic</div><div class="rv" id="rrHyd">— psi</div></div>
+      <div class="result"><div class="rl">Tally joints</div><div class="rv" id="rrJoints">0</div></div>
+      <div class="result"><div class="rl">Pipe OD</div><div class="rv" id="rrOd">— in</div></div>
+    </div>
+    <div class="card">
+      <h3>Formula reference</h3>
+      <p>
+        Capacity (bbl/ft) = ID² ÷ 1029.4&nbsp;&nbsp;|&nbsp;&nbsp;
+        Displacement (bbl/ft) = (OD² − ID²) ÷ 1029.4&nbsp;&nbsp;|&nbsp;&nbsp;
+        Annular capacity (bbl/ft) = (D_outer² − D_pipe_OD²) ÷ 1029.4&nbsp;&nbsp;|&nbsp;&nbsp;
+        Full circulation (bbl) = string volume + annular volume&nbsp;&nbsp;|&nbsp;&nbsp;
+        Hydrostatic (psi) = 0.052 × MW (ppg) × TVD (ft)&nbsp;&nbsp;|&nbsp;&nbsp;
+        Conversion: 1 bbl = 42 gal = 5.6146 ft³
+      </p>
+    </div>
+  </div>
+
+  <!-- STICKY BAR -->
+  <div class="sticky-bar">
+    <button class="btn-g" id="nextBtn">Next →</button>
+    <button class="btn-a" id="runAllBtn">Run All</button>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// OCTG CATALOG — API 5CT (tubing + casing), API 5DP (drill pipe),
+//                API SPEC 7-1 (HWDP + drill collars)
+// Fields: f=family, od, wt, id, wall, drift, collapse, burst, tension, grades
+// ================================================================
+const DB=[
+// ===== TUBING (API 5CT) =====
+// 1.050"
+{f:'Tubing',od:1.050,wt:1.14,id:0.824,wall:0.113,drift:0.730,collapse:8940,burst:6990,tension:25200,grades:'H40, J55'},
+{f:'Tubing',od:1.050,wt:1.48,id:0.742,wall:0.154,drift:0.648,collapse:12140,burst:9540,tension:34100,grades:'H40, J55, N80'},
+// 1.315"
+{f:'Tubing',od:1.315,wt:1.72,id:1.049,wall:0.133,drift:0.955,collapse:7320,burst:6210,tension:38800,grades:'H40, J55'},
+{f:'Tubing',od:1.315,wt:2.09,id:0.957,wall:0.179,drift:0.863,collapse:12360,burst:8360,tension:51800,grades:'J55, N80'},
+// 1.660"
+{f:'Tubing',od:1.660,wt:2.40,id:1.380,wall:0.140,drift:1.286,collapse:6200,burst:5200,tension:57000,grades:'H40, J55'},
+{f:'Tubing',od:1.660,wt:3.03,id:1.278,wall:0.191,drift:1.184,collapse:12350,burst:7100,tension:77200,grades:'J55, N80'},
+// 1.900"
+{f:'Tubing',od:1.900,wt:2.75,id:1.610,wall:0.145,drift:1.516,collapse:5550,burst:4640,tension:68600,grades:'H40, J55'},
+{f:'Tubing',od:1.900,wt:3.65,id:1.500,wall:0.200,drift:1.406,collapse:10580,burst:6400,tension:93900,grades:'J55, N80'},
+// 2-3/8"
+{f:'Tubing',od:2.375,wt:4.00,id:1.995,wall:0.190,drift:1.901,collapse:5840,burst:4860,tension:117100,grades:'H40, J55'},
+{f:'Tubing',od:2.375,wt:4.70,id:1.939,wall:0.218,drift:1.845,collapse:7680,burst:5580,tension:134100,grades:'J55, N80, L80'},
+{f:'Tubing',od:2.375,wt:5.80,id:1.867,wall:0.254,drift:1.773,collapse:10800,burst:6500,tension:155200,grades:'N80, L80, P110'},
+{f:'Tubing',od:2.375,wt:6.60,id:1.815,wall:0.280,drift:1.721,collapse:13240,burst:7160,tension:170000,grades:'N80, L80, P110'},
+// 2-7/8"
+{f:'Tubing',od:2.875,wt:4.00,id:2.441,wall:0.217,drift:2.347,collapse:3230,burst:4260,tension:133800,grades:'H40, J55'},
+{f:'Tubing',od:2.875,wt:6.50,id:2.441,wall:0.217,drift:2.347,collapse:8190,burst:6960,tension:171800,grades:'J55, N80, L80'},
+{f:'Tubing',od:2.875,wt:7.90,id:2.323,wall:0.276,drift:2.229,collapse:12540,burst:8860,tension:214700,grades:'N80, L80, P110'},
+{f:'Tubing',od:2.875,wt:8.70,id:2.259,wall:0.308,drift:2.165,collapse:14700,burst:9890,tension:237700,grades:'N80, L80, P110'},
+{f:'Tubing',od:2.875,wt:9.40,id:2.205,wall:0.335,drift:2.111,collapse:16760,burst:10740,tension:256700,grades:'P110'},
+// 3-1/2"
+{f:'Tubing',od:3.500,wt:7.70,id:2.992,wall:0.254,drift:2.867,collapse:6180,burst:6710,tension:233700,grades:'H40, J55'},
+{f:'Tubing',od:3.500,wt:9.20,id:2.922,wall:0.289,drift:2.797,collapse:8430,burst:7630,tension:267900,grades:'J55, N80'},
+{f:'Tubing',od:3.500,wt:10.20,id:2.867,wall:0.317,drift:2.742,collapse:10180,burst:8370,tension:294300,grades:'N80, L80'},
+{f:'Tubing',od:3.500,wt:12.70,id:2.750,wall:0.375,drift:2.625,collapse:14870,burst:9900,tension:344200,grades:'N80, L80, P110'},
+// 4"
+{f:'Tubing',od:4.000,wt:9.50,id:3.476,wall:0.262,drift:3.351,collapse:5780,burst:6500,tension:306000,grades:'J55, N80'},
+{f:'Tubing',od:4.000,wt:11.00,id:3.428,wall:0.286,drift:3.303,collapse:7440,burst:7100,tension:347000,grades:'N80, L80'},
+// 4-1/2"
+{f:'Tubing',od:4.500,wt:12.60,id:3.958,wall:0.271,drift:3.833,collapse:5150,burst:6000,tension:389000,grades:'J55, N80'},
+{f:'Tubing',od:4.500,wt:12.75,id:3.958,wall:0.271,drift:3.833,collapse:5990,burst:7240,tension:389000,grades:'N80, L80'},
+
+// ===== DRILL PIPE (API 5DP) =====
+{f:'Drill Pipe',od:2.375,wt:6.65,id:1.995,wall:0.190,drift:1.875,collapse:12540,burst:14750,tension:205700,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:2.875,wt:10.40,id:2.151,wall:0.362,drift:2.031,collapse:24200,burst:21000,tension:257200,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:3.500,wt:13.30,id:2.764,wall:0.368,drift:2.602,collapse:14290,burst:13450,tension:337000,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:3.500,wt:15.50,id:2.602,wall:0.449,drift:2.440,collapse:24840,burst:16410,tension:403000,grades:'X95, G105, S135'},
+{f:'Drill Pipe',od:4.000,wt:14.00,id:3.340,wall:0.330,drift:3.178,collapse:10430,burst:10430,tension:354000,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:4.500,wt:16.60,id:3.826,wall:0.337,drift:3.640,collapse:9500,burst:9500,tension:514000,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:4.500,wt:20.00,id:3.640,wall:0.430,drift:3.478,collapse:15360,burst:12130,tension:638000,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:5.000,wt:19.50,id:4.276,wall:0.362,drift:4.114,collapse:9700,burst:9180,tension:658000,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:5.000,wt:25.60,id:4.000,wall:0.500,drift:3.838,collapse:18940,burst:12700,tension:868000,grades:'G105, S135'},
+{f:'Drill Pipe',od:5.500,wt:21.90,id:4.778,wall:0.361,drift:4.616,collapse:8750,burst:8350,tension:759000,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:5.500,wt:24.70,id:4.670,wall:0.415,drift:4.508,collapse:12200,burst:9600,tension:876000,grades:'G105, S135'},
+{f:'Drill Pipe',od:6.625,wt:25.20,id:5.965,wall:0.330,drift:5.803,collapse:6330,burst:6330,tension:934000,grades:'E75, X95, G105, S135'},
+{f:'Drill Pipe',od:6.625,wt:27.70,id:5.901,wall:0.362,drift:5.739,collapse:7600,burst:6940,tension:1020000,grades:'X95, G105, S135'},
+
+// ===== HWDP (API SPEC 7-1) =====
+{f:'HWDP',od:3.500,wt:25.30,id:2.063,wall:0.719,drift:1.900,collapse:0,burst:0,tension:500000,grades:'Alloy steel / S135'},
+{f:'HWDP',od:4.000,wt:29.70,id:2.563,wall:0.719,drift:2.400,collapse:0,burst:0,tension:600000,grades:'Alloy steel / S135'},
+{f:'HWDP',od:4.500,wt:41.00,id:2.750,wall:0.875,drift:2.500,collapse:0,burst:0,tension:700000,grades:'Alloy steel / S135'},
+{f:'HWDP',od:5.000,wt:49.30,id:3.000,wall:1.000,drift:2.750,collapse:0,burst:0,tension:800000,grades:'Alloy steel / S135'},
+{f:'HWDP',od:5.000,wt:50.00,id:3.000,wall:1.000,drift:2.750,collapse:0,burst:0,tension:810000,grades:'Alloy steel / S135'},
+{f:'HWDP',od:5.500,wt:49.30,id:3.000,wall:1.250,drift:2.750,collapse:0,burst:0,tension:830000,grades:'Alloy steel / S135'},
+{f:'HWDP',od:6.625,wt:70.00,id:3.000,wall:1.813,drift:2.750,collapse:0,burst:0,tension:1100000,grades:'Alloy steel / S135'},
+
+// ===== DRILL COLLARS (API SPEC 7-1) =====
+{f:'Drill Collar',od:4.750,wt:45.00,id:2.250,wall:1.250,drift:2.000,collapse:0,burst:0,tension:750000,grades:'Alloy steel'},
+{f:'Drill Collar',od:5.000,wt:54.00,id:2.250,wall:1.375,drift:2.000,collapse:0,burst:0,tension:820000,grades:'Alloy steel'},
+{f:'Drill Collar',od:6.000,wt:73.00,id:2.813,wall:1.594,drift:2.563,collapse:0,burst:0,tension:1000000,grades:'Alloy steel'},
+{f:'Drill Collar',od:6.250,wt:83.00,id:2.813,wall:1.719,drift:2.563,collapse:0,burst:0,tension:1050000,grades:'Alloy steel'},
+{f:'Drill Collar',od:6.500,wt:91.00,id:2.813,wall:1.844,drift:2.563,collapse:0,burst:0,tension:1100000,grades:'Alloy steel'},
+{f:'Drill Collar',od:7.000,wt:110.00,id:2.813,wall:2.094,drift:2.563,collapse:0,burst:0,tension:1250000,grades:'Alloy steel'},
+{f:'Drill Collar',od:8.000,wt:147.00,id:2.813,wall:2.594,drift:2.563,collapse:0,burst:0,tension:1500000,grades:'Alloy steel'},
+{f:'Drill Collar',od:9.000,wt:189.00,id:3.000,wall:3.000,drift:2.750,collapse:0,burst:0,tension:1850000,grades:'Alloy steel'},
+{f:'Drill Collar',od:9.500,wt:211.00,id:3.000,wall:3.250,drift:2.750,collapse:0,burst:0,tension:2050000,grades:'Alloy steel'},
+
+// ===== CASING (API 5CT) =====
+// 4-1/2"
+{f:'Casing',od:4.500,wt:9.50,id:4.090,wall:0.205,drift:3.965,collapse:3120,burst:4020,tension:184000,grades:'J55, K55'},
+{f:'Casing',od:4.500,wt:10.50,id:4.052,wall:0.224,drift:3.927,collapse:4150,burst:4400,tension:199000,grades:'J55, K55, N80'},
+{f:'Casing',od:4.500,wt:11.60,id:4.000,wall:0.250,drift:3.875,collapse:5350,burst:4910,tension:225000,grades:'N80, L80, P110'},
+{f:'Casing',od:4.500,wt:13.50,id:3.920,wall:0.290,drift:3.795,collapse:7780,burst:5700,tension:271000,grades:'N80, L80, P110'},
+{f:'Casing',od:4.500,wt:15.10,id:3.826,wall:0.337,drift:3.701,collapse:10500,burst:6620,tension:322000,grades:'N80, P110, C110'},
+// 5"
+{f:'Casing',od:5.000,wt:11.50,id:4.560,wall:0.220,drift:4.435,collapse:2490,burst:3260,tension:224000,grades:'J55, K55'},
+{f:'Casing',od:5.000,wt:13.00,id:4.494,wall:0.253,drift:4.369,collapse:3520,burst:3750,tension:260000,grades:'J55, N80, L80'},
+{f:'Casing',od:5.000,wt:15.00,id:4.408,wall:0.296,drift:4.283,collapse:5430,burst:4390,tension:302000,grades:'N80, L80, P110'},
+{f:'Casing',od:5.000,wt:18.00,id:4.276,wall:0.362,drift:4.151,collapse:8810,burst:5370,tension:375000,grades:'N80, P110, C110'},
+// 5-1/2"
+{f:'Casing',od:5.500,wt:14.00,id:5.012,wall:0.244,drift:4.887,collapse:2780,burst:3010,tension:271000,grades:'J55, K55'},
+{f:'Casing',od:5.500,wt:15.50,id:4.950,wall:0.275,drift:4.825,collapse:3750,burst:3390,tension:306000,grades:'J55, N80'},
+{f:'Casing',od:5.500,wt:17.00,id:4.892,wall:0.304,drift:4.767,collapse:4680,burst:3750,tension:339000,grades:'N80, L80, P110'},
+{f:'Casing',od:5.500,wt:20.00,id:4.778,wall:0.361,drift:4.653,collapse:7030,burst:4440,tension:403000,grades:'N80, L80, P110, C110'},
+{f:'Casing',od:5.500,wt:23.00,id:4.670,wall:0.415,drift:4.545,collapse:9490,burst:5110,tension:463000,grades:'P110, C110, Q125'},
+// 6-5/8"
+{f:'Casing',od:6.625,wt:17.00,id:6.135,wall:0.245,drift:6.010,collapse:1760,burst:2690,tension:347000,grades:'J55, K55'},
+{f:'Casing',od:6.625,wt:20.00,id:6.049,wall:0.288,drift:5.924,collapse:2660,burst:3160,tension:408000,grades:'J55, N80'},
+{f:'Casing',od:6.625,wt:24.00,id:5.921,wall:0.352,drift:5.796,collapse:4310,burst:3870,tension:499000,grades:'N80, L80, P110'},
+{f:'Casing',od:6.625,wt:28.00,id:5.791,wall:0.417,drift:5.666,collapse:6340,burst:4580,tension:581000,grades:'N80, L80, P110'},
+// 7"
+{f:'Casing',od:7.000,wt:17.00,id:6.538,wall:0.231,drift:6.413,collapse:1590,burst:2690,tension:344000,grades:'J55, K55'},
+{f:'Casing',od:7.000,wt:20.00,id:6.456,wall:0.272,drift:6.331,collapse:2270,burst:3160,tension:408000,grades:'J55, N80, L80'},
+{f:'Casing',od:7.000,wt:23.00,id:6.366,wall:0.317,drift:6.241,collapse:3340,burst:3680,tension:476000,grades:'N80, L80, P110'},
+{f:'Casing',od:7.000,wt:26.00,id:6.276,wall:0.362,drift:6.151,collapse:4630,burst:4200,tension:543000,grades:'N80, L80, P110'},
+{f:'Casing',od:7.000,wt:29.00,id:6.184,wall:0.408,drift:6.059,collapse:5980,burst:4730,tension:614000,grades:'N80, P110, T95, C110'},
+{f:'Casing',od:7.000,wt:32.00,id:6.094,wall:0.453,drift:5.969,collapse:7390,burst:5250,tension:679000,grades:'P110, T95, C110, Q125'},
+{f:'Casing',od:7.000,wt:35.00,id:6.004,wall:0.498,drift:5.879,collapse:8960,burst:5770,tension:748000,grades:'P110, C110, Q125'},
+// 7-5/8"
+{f:'Casing',od:7.625,wt:24.00,id:7.025,wall:0.300,drift:6.900,collapse:2350,burst:3400,tension:466000,grades:'J55, N80'},
+{f:'Casing',od:7.625,wt:26.40,id:6.969,wall:0.328,drift:6.844,collapse:3030,burst:3720,tension:511000,grades:'N80, L80'},
+{f:'Casing',od:7.625,wt:29.70,id:6.875,wall:0.375,drift:6.750,collapse:4160,burst:4250,tension:585000,grades:'N80, L80, P110'},
+{f:'Casing',od:7.625,wt:33.70,id:6.765,wall:0.430,drift:6.640,collapse:5800,burst:4870,tension:669000,grades:'N80, P110, T95'},
+{f:'Casing',od:7.625,wt:39.00,id:6.625,wall:0.500,drift:6.500,collapse:7960,burst:5660,tension:776000,grades:'P110, C110, Q125'},
+// 8-5/8"
+{f:'Casing',od:8.625,wt:28.00,id:8.017,wall:0.304,drift:7.892,collapse:1900,burst:3030,tension:540000,grades:'J55, K55'},
+{f:'Casing',od:8.625,wt:32.00,id:7.921,wall:0.352,drift:7.796,collapse:2680,burst:3510,tension:626000,grades:'J55, N80'},
+{f:'Casing',od:8.625,wt:36.00,id:7.825,wall:0.400,drift:7.700,collapse:3540,burst:3990,tension:710000,grades:'N80, L80, P110'},
+{f:'Casing',od:8.625,wt:40.00,id:7.725,wall:0.450,drift:7.600,collapse:4750,burst:4490,tension:799000,grades:'N80, L80, P110'},
+{f:'Casing',od:8.625,wt:44.00,id:7.625,wall:0.500,drift:7.500,collapse:6010,burst:4990,tension:888000,grades:'N80, P110, C110'},
+// 9-5/8"
+{f:'Casing',od:9.625,wt:32.30,id:9.001,wall:0.312,drift:8.845,collapse:1500,burst:2800,tension:599000,grades:'J55, K55'},
+{f:'Casing',od:9.625,wt:36.00,id:8.921,wall:0.352,drift:8.765,collapse:2020,burst:3140,tension:677000,grades:'J55, N80, L80'},
+{f:'Casing',od:9.625,wt:40.00,id:8.835,wall:0.395,drift:8.679,collapse:2690,burst:3530,tension:762000,grades:'N80, L80, P110'},
+{f:'Casing',od:9.625,wt:43.50,id:8.755,wall:0.435,drift:8.599,collapse:3290,burst:3880,tension:841000,grades:'N80, L80, P110'},
+{f:'Casing',od:9.625,wt:47.00,id:8.681,wall:0.472,drift:8.525,collapse:3770,burst:4210,tension:912000,grades:'N80, P110, T95, C110'},
+{f:'Casing',od:9.625,wt:53.50,id:8.535,wall:0.545,drift:8.379,collapse:5150,burst:4860,tension:1052000,grades:'P110, T95, C110, Q125'},
+// 10-3/4"
+{f:'Casing',od:10.750,wt:32.75,id:10.192,wall:0.279,drift:10.036,collapse:1060,burst:2360,tension:636000,grades:'J55, K55'},
+{f:'Casing',od:10.750,wt:40.50,id:10.050,wall:0.350,drift:9.894,collapse:1810,burst:2960,tension:793000,grades:'J55, N80'},
+{f:'Casing',od:10.750,wt:45.50,id:9.950,wall:0.400,drift:9.794,collapse:2470,burst:3380,tension:897000,grades:'N80, L80, P110'},
+{f:'Casing',od:10.750,wt:51.00,id:9.850,wall:0.450,drift:9.694,collapse:3040,burst:3800,tension:1005000,grades:'N80, P110'},
+{f:'Casing',od:10.750,wt:55.50,id:9.760,wall:0.495,drift:9.604,collapse:3680,burst:4180,tension:1105000,grades:'N80, P110'},
+// 11-3/4"
+{f:'Casing',od:11.750,wt:42.00,id:11.084,wall:0.333,drift:10.928,collapse:1230,burst:2390,tension:826000,grades:'J55, K55'},
+{f:'Casing',od:11.750,wt:47.00,id:10.988,wall:0.381,drift:10.832,collapse:1700,burst:2730,tension:941000,grades:'K55, N80'},
+{f:'Casing',od:11.750,wt:54.00,id:10.880,wall:0.435,drift:10.724,collapse:2310,burst:3120,tension:1076000,grades:'N80, L80, P110'},
+{f:'Casing',od:11.750,wt:60.00,id:10.772,wall:0.489,drift:10.616,collapse:2920,burst:3510,tension:1208000,grades:'N80, P110'},
+// 13-3/8"
+{f:'Casing',od:13.375,wt:48.00,id:12.715,wall:0.330,drift:12.559,collapse:1020,burst:2270,tension:948000,grades:'J55, K55'},
+{f:'Casing',od:13.375,wt:54.50,id:12.615,wall:0.380,drift:12.459,collapse:1390,burst:2610,tension:1093000,grades:'J55, K55, N80'},
+{f:'Casing',od:13.375,wt:61.00,id:12.515,wall:0.430,drift:12.359,collapse:1760,burst:2950,tension:1232000,grades:'K55, N80, L80'},
+{f:'Casing',od:13.375,wt:68.00,id:12.415,wall:0.480,drift:12.259,collapse:2160,burst:3290,tension:1373000,grades:'N80, L80, P110'},
+{f:'Casing',od:13.375,wt:72.00,id:12.347,wall:0.514,drift:12.191,collapse:2510,burst:3520,tension:1467000,grades:'N80, P110'},
+// 16"
+{f:'Casing',od:16.000,wt:65.00,id:15.250,wall:0.375,drift:15.062,collapse:810,burst:2040,tension:1270000,grades:'J55, K55'},
+{f:'Casing',od:16.000,wt:75.00,id:15.124,wall:0.438,drift:14.936,collapse:1100,burst:2390,tension:1484000,grades:'K55, N80'},
+{f:'Casing',od:16.000,wt:84.00,id:15.010,wall:0.495,drift:14.822,collapse:1400,burst:2700,tension:1676000,grades:'K55, N80'},
+// 18-5/8"
+{f:'Casing',od:18.625,wt:87.50,id:17.755,wall:0.435,drift:17.567,collapse:660,burst:1760,tension:1710000,grades:'J55, K55'},
+// 20"
+{f:'Casing',od:20.000,wt:94.00,id:19.124,wall:0.438,drift:18.936,collapse:590,burst:1640,tension:1833000,grades:'J55, K55'},
+{f:'Casing',od:20.000,wt:106.50,id:19.000,wall:0.500,drift:18.812,collapse:770,burst:1880,tension:2100000,grades:'J55, K55'},
+{f:'Casing',od:20.000,wt:133.00,id:18.730,wall:0.635,drift:18.542,collapse:1180,burst:2380,tension:2700000,grades:'K55, N80'}
+];
+
+// ================================================================
+// STATE
+// ================================================================
+const S={current:'ref',rows:[],stream:null,image:null,od:0,id_:0,wall_:0,
+  cap:{capFt:0,totBbl:0,dispFt:0},ann:{annCap:0,annVol:0,hyd:0}};
+const fmt=(n,d=2)=>Number.isFinite(n)?Number(n).toFixed(d):'—';
+const $ = id=>document.getElementById(id);
+const talliedDepth=()=>S.rows.length?Number(S.rows[S.rows.length-1].cum||0):0;
+
+// ================================================================
+// NAV
+// ================================================================
+const navOrder=['ref','cap','ann','tally','res'];
+const viewMap={ref:'pref',cap:'pcap',ann:'pann',tally:'ptally',res:'pres'};
+function showView(v){
+  S.current=v;
+  navOrder.forEach(k=>$(viewMap[k]).classList.toggle('hidden',k!==v));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.v)));
+
+// ================================================================
+// REFERENCE DROPDOWNS
+// ================================================================
+function families(){return[...new Set(DB.map(x=>x.f))]}
+function initRef(){
+  $('selFamily').innerHTML=families().map(f=>`<option>${f}</option>`).join('');
+  fillOds();
+}
+function fillOds(){
+  const f=$('selFamily').value;
+  const ods=[...new Set(DB.filter(x=>x.f===f).map(x=>x.od))].sort((a,b)=>a-b);
+  $('selOd').innerHTML=ods.map(o=>`<option value="${o}">${o}"</option>`).join('');
+  fillWts();
+}
+function fillWts(){
+  const f=$('selFamily').value, od=parseFloat($('selOd').value);
+  const wts=DB.filter(x=>x.f===f&&x.od===od).map(x=>x.wt).sort((a,b)=>a-b);
+  $('selWt').innerHTML=wts.map(w=>`<option value="${w}">${w} lb/ft</option>`).join('');
+  applyRef();
+}
+function applyRef(){
+  const f=$('selFamily').value, od=parseFloat($('selOd').value), wt=parseFloat($('selWt').value);
+  const row=DB.find(x=>x.f===f&&x.od===od&&x.wt===wt);
+  if(!row)return;
+  S.od=od; S.id_=row.id; S.wall_=row.wall;
+  $('fId').value=row.id.toFixed(3);
+  $('fWall').value=row.wall.toFixed(3);
+  $('fDrift').value=row.drift.toFixed(3);
+  $('fCollapse').value=row.collapse>0?row.collapse.toLocaleString():'N/A (drill string)';
+  $('fBurst').value=row.burst>0?row.burst.toLocaleString():'N/A (drill string)';
+  $('fTension').value=row.tension.toLocaleString();
+  $('fGrades').value=row.grades;
+  $('refPills').innerHTML=`<div class="pill good">${f} ${od}" &nbsp;${wt} lb/ft &nbsp;— ID: ${row.id.toFixed(3)}"  Drift: ${row.drift.toFixed(3)}"</div>`;
+  $('kOd').textContent=od+' in'; $('kId').textContent=row.id.toFixed(3)+' in';
+  $('cOd').value=od; $('cId').value=row.id; $('aOd').value=od;
+}
+$('selFamily').addEventListener('change',fillOds);
+$('selOd').addEventListener('change',fillWts);
+$('selWt').addEventListener('change',applyRef);
+$('useCapBtn').addEventListener('click',()=>showView('cap'));
+$('copyRefBtn').addEventListener('click',()=>{
+  const t=`Echelon IPM Tubular Reference\nFamily: ${$('selFamily').value}\nOD: ${$('selOd').value}"\nWeight: ${$('selWt').value} lb/ft\nID: ${$('fId').value}"\nWall: ${$('fWall').value}"\nDrift: ${$('fDrift').value}"\nCollapse: ${$('fCollapse').value} psi\nBurst: ${$('fBurst').value} psi\nBody yield: ${$('fTension').value} lb\nGrades: ${$('fGrades').value}`;
+  navigator.clipboard?.writeText(t);
+  $('refPills').innerHTML='<div class="pill good">Copied to clipboard</div>';
+});
+
+// ================================================================
+// ANNULUS CASING DROPDOWNS
+// ================================================================
+function initAnnDrops(){
+  const ods=[...new Set(DB.filter(x=>x.f==='Casing').map(x=>x.od))].sort((a,b)=>a-b);
+  $('aCsgOd').innerHTML=ods.map(o=>`<option value="${o}">${o}"</option>`).join('');
+  fillAnnWts();
+}
+function fillAnnWts(){
+  const od=parseFloat($('aCsgOd').value);
+  const wts=DB.filter(x=>x.f==='Casing'&&x.od===od).map(x=>x.wt).sort((a,b)=>a-b);
+  $('aCsgWt').innerHTML=wts.map(w=>`<option value="${w}">${w} lb/ft</option>`).join('');
+}
+$('aCsgOd').addEventListener('change',fillAnnWts);
+$('lookupAnnBtn').addEventListener('click',()=>{
+  const od=parseFloat($('aCsgOd').value),wt=parseFloat($('aCsgWt').value);
+  const row=DB.find(x=>x.f==='Casing'&&x.od===od&&x.wt===wt);
+  if(row){
+    $('aCsgId').value=row.id.toFixed(3);
+    $('annStatus').innerHTML=`<div class="pill good">Casing ID locked: ${row.id.toFixed(3)}" &nbsp;(${od}" &nbsp;${wt} lb/ft)</div>`;
+  } else {
+    $('annStatus').innerHTML='<div class="pill warn">No match. Verify OD and weight selection.</div>';
+  }
+});
+
+// ================================================================
+// CAPACITY
+// ================================================================
+function runCap(){
+  const id=parseFloat($('cId').value||0), od=parseFloat($('cOd').value||0);
+  const len=parseFloat($('cLen').value||0), unit=$('cUnit').value;
+  if(!id||!od)return;
+  const capFt=(id*id)/1029.4;
+  const dispFt=((od*od)-(id*id))/1029.4;
+  const totBbl=capFt*len;
+  const uF=unit==='gal'?42:unit==='ft3'?5.6146:1;
+  const uL=unit==='gal'?'gal':unit==='ft3'?'ft³':'bbl';
+  $('rCapFt').textContent=fmt(capFt,4)+' bbl/ft';
+  $('rCapTot').textContent=fmt(totBbl*uF,2)+' '+uL;
+  $('rDisp').textContent=fmt(dispFt,4)+' bbl/ft';
+  S.cap={capFt,totBbl,dispFt};
+  updateKpis();
+}
+$('runCapBtn').addEventListener('click',runCap);
+
+// ================================================================
+// ANNULUS
+// ================================================================
+function runAnn(){
+  const pOd=parseFloat($('aOd').value||0);
+  const csgId=parseFloat($('aCsgId').value||0);
+  const hole=parseFloat($('aHole').value||0);
+  const outer=csgId||hole;
+  const len=parseFloat($('aLen').value||0);
+  const mw=parseFloat($('aMw').value||0);
+  const depth=parseFloat($('aHydDepth').value||0);
+  if(!outer||!pOd)return;
+  const annCap=Math.max(0,((outer*outer)-(pOd*pOd))/1029.4);
+  const annVol=annCap*len, hyd=0.052*mw*depth;
+  $('rAnnCap').textContent=fmt(annCap,4)+' bbl/ft';
+  $('rAnnVol').textContent=fmt(annVol,2)+' bbl';
+  $('rHyd').textContent=fmt(hyd,0)+' psi';
+  S.ann={annCap,annVol,hyd};
+  updateKpis();
+}
+$('runAnnBtn').addEventListener('click',runAnn);
+
+// ================================================================
+// TALLY TABLE
+// ================================================================
+const tbody=$('tbody');
+const FAMILIES=families();
+function addRow(r={}){
+  S.rows.push({
+    joint:r.joint??S.rows.length+1,
+    len:r.len??'',
+    cum:r.cum??'',
+    fam:r.fam??($('selFamily').value||FAMILIES[0]),
+    grade:r.grade??'',
+    notes:r.notes??''
+  });
+  renderRows();
+}
+function renderRows(){
+  tbody.innerHTML='';
+  S.rows.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input type="number" min="1" value="${r.joint}" data-i="${i}" data-k="joint"></td>
+      <td><input type="number" step="0.01" value="${r.len}" data-i="${i}" data-k="len" placeholder="ft"></td>
+      <td><input type="number" step="0.01" value="${r.cum}" data-i="${i}" data-k="cum" placeholder="cumulative"></td>
+      <td><select data-i="${i}" data-k="fam">${FAMILIES.map(f=>`<option${r.fam===f?' selected':''}>${f}</option>`).join('')}</select></td>
+      <td><input type="text" value="${r.grade}" data-i="${i}" data-k="grade" placeholder="e.g. S135"></td>
+      <td><input type="text" value="${r.notes}" data-i="${i}" data-k="notes" placeholder="optional"></td>
+      <td><button class="btn-g" style="min-height:38px;padding:5px 9px;font-size:13px" data-del="${i}">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',e=>{
+    const i=Number(e.target.dataset.i), k=e.target.dataset.k;
+    S.rows[i][k]=(['len','cum','joint'].includes(k))?e.target.valueAsNumber:e.target.value;
+    updateKpis();
+  }));
+  tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{
+    S.rows.splice(Number(e.target.dataset.del),1); renderRows(); updateKpis();
+  }));
+  updateKpis();
+}
+function rebuild(){
+  let s=0;
+  S.rows.forEach((r,i)=>{
+    r.joint=i+1;
+    const l=parseFloat(r.len)||0; s+=l; r.cum=parseFloat(s.toFixed(2));
+  });
+  renderRows();
+}
+function validate(){
+  if(!S.rows.length){$('tallyStatus').innerHTML='<div class="pill warn">No rows to validate</div>';return;}
+  let prev=0, pass=true, msgs=[];
+  S.rows.forEach((r,i)=>{
+    if(Number(r.joint)!==i+1){pass=false;msgs.push('Joint number error at row '+(i+1));}
+    if(!(parseFloat(r.len)>0)){pass=false;msgs.push('Missing or zero length at row '+(i+1));}
+    if(parseFloat(r.cum)<prev){pass=false;msgs.push('Cumulative decrease at row '+(i+1));}
+    prev=parseFloat(r.cum)||0;
+  });
+  $('tallyStatus').innerHTML=`<div class="pill ${pass?'good':'warn'}">${pass?'All tally checks pass':'Tally has issues — review flagged rows'}</div>`
+    +msgs.slice(0,5).map(m=>`<div class="pill">${m}</div>`).join('');
+}
+$('addRowBtn').addEventListener('click',()=>addRow());
+$('rebuildBtn').addEventListener('click',rebuild);
+$('validateBtn').addEventListener('click',validate);
+
+// ================================================================
+// CAMERA
+// ================================================================
+const vid=$('vid'),cnvs=$('cnvs');
+async function openCam(){
+  try{
+    S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    vid.srcObject=S.stream; vid.classList.remove('hidden');
+    $('camHint').classList.add('hidden');
+    $('snapBtn').classList.remove('hidden'); $('stopCamBtn').classList.remove('hidden');
+    $('openCamBtn').classList.add('hidden');
+  }catch(e){alert('Camera access denied or unavailable. Use the Upload photo button instead.');}
+}
+function stopCam(){
+  if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}
+  vid.classList.add('hidden'); vid.srcObject=null;
+  $('snapBtn').classList.add('hidden'); $('stopCamBtn').classList.add('hidden');
+  $('openCamBtn').classList.remove('hidden');
+  if(!S.image)$('camHint').classList.remove('hidden');
+}
+function setImg(url){
+  S.image=url;
+  $('imgWrap').innerHTML=`<img src="${url}" alt="Captured tally sheet — reference while entering rows">`;
+}
+$('openCamBtn').addEventListener('click',openCam);
+$('stopCamBtn').addEventListener('click',stopCam);
+$('snapBtn').addEventListener('click',()=>{
+  const ctx=cnvs.getContext('2d');
+  cnvs.width=vid.videoWidth; cnvs.height=vid.videoHeight;
+  ctx.drawImage(vid,0,0,cnvs.width,cnvs.height);
+  setImg(cnvs.toDataURL('image/jpeg',0.90)); stopCam();
+});
+$('imgFile').addEventListener('change',e=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const r=new FileReader(); r.onload=ev=>setImg(ev.target.result); r.readAsDataURL(f);
+});
+
+// ================================================================
+// KPIs
+// ================================================================
+function updateKpis(){
+  if(S.od) $('kOd').textContent=S.od+' in';
+  if(S.id_) $('kId').textContent=S.id_.toFixed(3)+' in';
+  $('kDepth').textContent=fmt(talliedDepth(),1)+' ft';
+  const circ=(S.cap.totBbl||0)+(S.ann.annVol||0);
+  $('kCirc').textContent=fmt(circ,2)+' bbl';
+}
+
+// ================================================================
+// RUN ALL / RESULTS
+// ================================================================
+function runAll(){
+  runCap(); runAnn();
+  const td=talliedDepth()||parseFloat($('cLen').value||0);
+  $('rrDepth').textContent=fmt(td,1)+' ft';
+  $('rrId').textContent=fmt(S.id_,3)+' in';
+  $('rrWall').textContent=fmt(S.wall_,3)+' in';
+  $('rrOd').textContent=S.od?S.od+' in':'—';
+  $('rrCap').textContent=fmt(S.cap.capFt,4)+' bbl/ft';
+  $('rrStr').textContent=fmt(S.cap.totBbl,2)+' bbl';
+  $('rrDisp').textContent=fmt(S.cap.dispFt,4)+' bbl/ft';
+  $('rrAnn').textContent=fmt(S.ann.annCap,4)+' bbl/ft';
+  $('rrAnnV').textContent=fmt(S.ann.annVol,2)+' bbl';
+  const circ=(S.cap.totBbl||0)+(S.ann.annVol||0);
+  $('rrCirc').textContent=fmt(circ,2)+' bbl';
+  $('rrHyd').textContent=fmt(S.ann.hyd,0)+' psi';
+  $('rrJoints').textContent=S.rows.length;
+  updateKpis(); showView('res');
+}
+$('runAllBtn').addEventListener('click',runAll);
+$('runAllInner').addEventListener('click',runAll);
+$('nextBtn').addEventListener('click',()=>{
+  const i=navOrder.indexOf(S.current);
+  showView(navOrder[Math.min(i+1,navOrder.length-1)]);
+});
+
+// ================================================================
+// DEMO
+// ================================================================
+$('demoBtn').addEventListener('click',()=>{
+  // Load 5" 19.5 drill pipe from catalog
+  $('selFamily').value='Drill Pipe';
+  fillOds();
+  $('selOd').value='5';
+  fillWts();
+  $('selWt').value='19.50';
+  applyRef();
+  $('cLen').value=10000;
+  $('aLen').value=10000;
+  $('aHydDepth').value=10000;
+  // 9-5/8" 47 lb/ft casing
+  $('aCsgOd').value='9.625';
+  fillAnnWts();
+  $('aCsgWt').value='47';
+  $('lookupAnnBtn').click();
+  // Demo tally rows
+  S.rows=[
+    {joint:1,len:31.2,cum:31.2,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:2,len:30.9,cum:62.1,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:3,len:31.4,cum:93.5,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:4,len:30.8,cum:124.3,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:5,len:31.1,cum:155.4,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:6,len:30.7,cum:186.1,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:7,len:31.3,cum:217.4,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:8,len:31.0,cum:248.4,fam:'Drill Pipe',grade:'S135',notes:''},
+    {joint:9,len:30.8,cum:279.2,fam:'Drill Pipe',grade:'S135',notes:'Dented box'},
+    {joint:10,len:31.2,cum:310.4,fam:'Drill Pipe',grade:'S135',notes:''}
+  ];
+  renderRows();
+  showView('tally');
+});
+
+// ================================================================
+// EXPORT CSV
+// ================================================================
+$('exportBtn').addEventListener('click',()=>{
+  if(!S.rows.length){alert('No tally rows to export.');return;}
+  const now=new Date().toISOString().slice(0,10);
+  const fam=$('selFamily').value, od=S.od||'—', wt=$('selWt').value||'—';
+  const meta=`Echelon IPM Tubular Tally,Exported:,${now}\nFamily:,${fam},OD:,${od},Weight:,${wt} lb/ft\nID:,${S.id_.toFixed(3)||'—'},Wall:,${S.wall_.toFixed(3)||'—'}\n`;
+  const hdr='Joint,Length (ft),Cumulative (ft),Pipe Family,Grade,Notes\n';
+  const rows=S.rows.map(r=>[r.joint,r.len,r.cum,r.fam,r.grade,r.notes||''].join(',')).join('\n');
+  const totals=`\nTotal joints,${S.rows.length},,,,\nTotal depth (ft),${fmt(talliedDepth(),2)},,,,`;
+  const csv=meta+hdr+rows+totals;
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`echelon_tally_${od}in_${now}.csv`; a.click();
+});
+
+// ================================================================
+// INIT
+// ================================================================
+initRef();
+initAnnDrops();
+addRow();
+updateKpis();
+</script>
+</body>
+</html>
