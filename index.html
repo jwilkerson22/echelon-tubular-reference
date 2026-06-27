@@ -303,7 +303,11 @@
 
     <!-- OCR SCAN -->
     <div class="step-label">Scan handwritten tally (optional)</div>
-    <div class="psub">Photograph your paper tally sheet. The app reads joint numbers and lengths automatically, then populates the table. Review before accepting.</div>
+    <div class="psub">Photograph one page or column of your tally book. Each accepted scan <strong>appends</strong> to the existing tally — photograph the next page to continue. Use <strong>Clear rows</strong> only when starting a new string.</div>
+    <div class="pills" style="margin-top:8px">
+      <div class="pill good">New images append to existing tally</div>
+      <div class="pill">Each joint gets its own row with running cumulative</div>
+    </div>
     <div class="g2" style="margin-top:10px">
       <div class="preview" id="camWrap">
         <video id="vid" class="hidden" autoplay playsinline muted></video>
@@ -339,9 +343,9 @@
         </table>
       </div>
       <div class="bar">
-        <button class="btn-a" id="ocrAcceptAllBtn">Accept all rows</button>
+        <button class="btn-a" id="ocrAcceptAllBtn">Accept all — append to tally</button>
         <button class="btn-s" id="ocrAcceptCheckedBtn">Accept checked only</button>
-        <button class="btn-g" id="ocrClearBtn">Clear OCR</button>
+        <button class="btn-g" id="ocrClearBtn">Discard scan</button>
       </div>
     </div>
     <div id="ocrMsg" style="font-size:13px;color:var(--muted);margin-top:8px;display:none"></div>
@@ -955,34 +959,102 @@ function setProgBar(pct,label){
 }
 
 function parseTallyText(raw){
-  const lines=raw.split('\n');
-  const parsed=[];
-  lines.forEach((line,lineIdx)=>{
-    const trimmed=line.trim();
-    if(!trimmed||trimmed.length<2) return;
-    const tokens=[];
-    const numRe=/(\d{1,4}(?:[.,]\d{1,3})?)/g;
+  // Split into lines and clean
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const allEntries = [];
+
+  lines.forEach((line, lineIdx) => {
+    // Extract all numeric tokens from this line (integers and decimals)
+    const tokens = [];
+    const re = /(\d{1,4}(?:[.,]\d{1,2})?)/g;
     let m;
-    while((m=numRe.exec(trimmed))!==null){
-      const val=parseFloat(m[1].replace(',','.'));
-      if(!isNaN(val)) tokens.push({val,raw:m[1],pos:m.index});
+    while ((m = re.exec(line)) !== null) {
+      const val = parseFloat(m[1].replace(',', '.'));
+      if (!isNaN(val)) tokens.push({ val, raw: m[1], pos: m.index });
     }
-    if(tokens.length<2) return;
-    let jointNum=null,jointLen=null,confidence='high';
-    for(const t of tokens){if(Number.isInteger(t.val)&&t.val>=1&&t.val<=9999){jointNum=t.val;break;}}
-    const lenCandidates=tokens.filter(t=>t.val>=10&&t.val<=60);
-    if(lenCandidates.length) jointLen=lenCandidates[0].val;
-    if(!jointNum||!jointLen) confidence='low';
-    if(jointLen&&(jointLen<15||jointLen>55)) confidence='low';
-    const noteRaw=trimmed.replace(/(\d{1,4}(?:[.,]\d{1,3})?)/g,'').replace(/[\s,.|]+/g,' ').trim();
-    const note=noteRaw.length>0&&noteRaw.length<60?noteRaw:'';
-    if(jointLen!=null) parsed.push({joint:jointNum,len:jointLen,cum:null,note,confidence,rawLine:trimmed,lineIdx});
+    if (tokens.length === 0) return;
+
+    // -------------------------------------------------------
+    // PATTERN DETECTION — a single OCR line may contain:
+    //   A) "103 31.39"           → 2 tokens: joint# + decimal length
+    //   B) "130 31 44"           → 3 tokens: joint# + integer + 2-digit decimal
+    //                               meaning length = 31.44
+    //   C) "157 31.41 158 31.45" → multiple rows on one OCR line (multi-col sheet)
+    //   D) "31.39"               → 1 token, length only (no joint# detected)
+    // -------------------------------------------------------
+
+    // Flatten multi-row lines: scan for repeating (joint, length) pairs
+    // A joint# is a whole number 1-9999 that is NOT a plausible length fragment
+    const entries = [];
+    let i = 0;
+    while (i < tokens.length) {
+      const t0 = tokens[i];
+
+      // Is t0 a plausible joint number? Whole integer 1–9999
+      const isJointNum = Number.isInteger(t0.val) && t0.val >= 1 && t0.val <= 9999;
+
+      if (isJointNum && i + 1 < tokens.length) {
+        const t1 = tokens[i + 1];
+
+        // Pattern B: joint# followed by small integer (10-40) then 2-digit int (0-99)
+        // e.g., 130 31 44 → joint=130, len=31.44
+        if (
+          Number.isInteger(t1.val) && t1.val >= 10 && t1.val <= 50 &&
+          i + 2 < tokens.length
+        ) {
+          const t2 = tokens[i + 2];
+          // t2 should be a 1-2 digit integer (decimal part: 0-99)
+          if (Number.isInteger(t2.val) && t2.val >= 0 && t2.val <= 99) {
+            const len = parseFloat(t1.val + '.' + String(t2.val).padStart(2,'0'));
+            if (len >= 10 && len <= 60) {
+              entries.push({ joint: t0.val, len, confidence: 'high' });
+              i += 3; continue;
+            }
+          }
+        }
+
+        // Pattern A: joint# followed by decimal length
+        if (t1.val >= 10 && t1.val <= 60) {
+          entries.push({ joint: t0.val, len: t1.val, confidence: 'high' });
+          i += 2; continue;
+        }
+
+        // joint# but next token is not a length — skip joint#, try again
+        entries.push({ joint: t0.val, len: null, confidence: 'low' });
+        i++; continue;
+      }
+
+      // Pattern D: lone length value (no joint# on this token)
+      if (t0.val >= 10 && t0.val <= 60) {
+        entries.push({ joint: null, len: t0.val, confidence: 'low' });
+      }
+      i++;
+    }
+
+    entries.forEach(e => allEntries.push({ ...e, rawLine: line, lineIdx }));
   });
-  parsed.sort((a,b)=>{if(a.joint===null&&b.joint===null)return a.lineIdx-b.lineIdx;if(a.joint===null)return 1;if(b.joint===null)return -1;return a.joint-b.joint;});
-  parsed.forEach((r,i)=>{if(r.joint===null)r.joint=i+1;});
-  let cum=0;
-  parsed.forEach(r=>{cum+=r.len||0;r.cum=parseFloat(cum.toFixed(2));});
-  return parsed;
+
+  // Remove entries with no length
+  const valid = allEntries.filter(e => e.len !== null && e.len > 0);
+
+  // Sort by joint number where known, preserve original order for unknowns
+  valid.sort((a, b) => {
+    if (a.joint !== null && b.joint !== null) return a.joint - b.joint;
+    if (a.joint !== null) return -1;
+    if (b.joint !== null) return 1;
+    return a.lineIdx - b.lineIdx;
+  });
+
+  // Assign sequential joint numbers to any rows missing them
+  let nextJ = valid.length > 0 && valid[0].joint ? valid[0].joint : 1;
+  valid.forEach(r => { if (r.joint === null) { r.joint = nextJ; } nextJ = r.joint + 1; });
+
+  // Rebuild cumulative — NOTE: cumulative here is relative to this scan only
+  // The app adds an offset from existing tally rows
+  let cum = 0;
+  valid.forEach(r => { cum += r.len; r.cum = parseFloat(cum.toFixed(2)); });
+
+  return valid;
 }
 
 function renderOcrReview(rows){
@@ -1024,14 +1096,16 @@ function renderOcrReview(rows){
 
 function acceptOcrRows(checkedOnly){
   const checkboxes=$('ocrReviewBody').querySelectorAll('.ocr-check');
+  let added=0;
   S_ocrParsed.forEach((r,i)=>{
     if(checkedOnly&&!checkboxes[i]?.checked) return;
     S.rows.push({joint:r.joint||(S.rows.length+1),len:r.len||'',cum:'',notes:r.note||''});
+    added++;
   });
-  rebuild();
+  rebuild(); // rebuild() recomputes all cumulative values including existing rows
   $('ocrReviewWrap').classList.add('hidden');
   $('ocrMsg').style.display='block';
-  $('ocrMsg').textContent='Rows accepted — review and correct in the tally table below.';
+  $('ocrMsg').textContent=`${added} row${added!==1?'s':''} appended to tally (total: ${S.rows.length} joints, ${talliedDepth().toFixed(2)} ft). Photograph the next page to continue adding.`;
   S_ocrParsed=[];
   setTimeout(()=>$('tbody').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
 }
