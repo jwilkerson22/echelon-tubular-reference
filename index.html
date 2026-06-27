@@ -113,7 +113,29 @@
       .top-btns{width:100%}
       .top-btns button{flex:1}
     }
+
+    /* ===== OCR TALLY STYLES ===== */
+    .ocr-step{margin-top:14px}
+    .step-label{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+    .preview{border:2px dashed var(--line);border-radius:18px;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f4f7fa;position:relative}
+    .preview img{width:100%;height:100%;object-fit:contain;border-radius:16px}
+    .preview-hint{color:var(--muted);font-size:14px;padding:20px;text-align:center}
+    video{width:100%;border-radius:16px;object-fit:cover}
+    .ocr-prog-label{font-size:13px;color:var(--muted);margin-bottom:6px}
+    .ocr-prog-bar-bg{background:#e2e8f0;border-radius:999px;height:10px;overflow:hidden}
+    .ocr-prog-bar{background:var(--accent);height:10px;border-radius:999px;transition:width .25s ease}
+    .ocr-review-row.low-conf td{background:#fff8ed}
+    .ocr-review-row.ok-conf td{background:#f0faf1}
+    .conf-badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+    .conf-high{background:#edf7ee;color:var(--good)}
+    .conf-low{background:#fff7ed;color:var(--warn)}
+    .conf-bad{background:#fef2f2;color:var(--bad)}
+    #ocrReviewTable th{font-size:12px}
+    #ocrReviewTable td{padding:8px 10px;vertical-align:middle}
+    .ocr-check{width:20px;height:20px;cursor:pointer}
+    .divider{height:1px;background:var(--line);margin:16px 0}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -286,47 +308,106 @@
 
   <!-- ========== TALLY ========== -->
   <div class="panel hidden" id="ptally">
-    <div class="ph2">Tally scan &amp; electronic table</div>
-    <div class="psub">Photograph a handwritten tally sheet using the phone camera or upload an image file. Review the captured image visually, then enter or correct joint number, measured joint length, and pipe type in the table. Use Rebuild Cumulative to auto-calculate running depth. Validate the tally for errors before exporting to CSV.</div>
-    <div class="g2">
-      <div class="preview" id="camWrap">
-        <video id="vid" class="hidden" autoplay playsinline muted></video>
-        <canvas id="cnvs" class="hidden" style="display:none"></canvas>
-        <div id="camHint">Camera feed or captured image appears here.</div>
+    <div class="ph2">Tally scan &amp; OCR transcription</div>
+    <div class="psub">Photograph a handwritten tally sheet or upload an image. The app reads the tally automatically and populates the table. Review and correct any flagged rows before saving.</div>
+
+    <!-- STEP 1: CAPTURE -->
+    <div class="ocr-step" id="ocrStep1">
+      <div class="step-label">Step 1 — Capture tally image</div>
+      <div class="g2" style="margin-top:10px">
+        <div class="preview" id="camWrap">
+          <video id="vid" class="hidden" autoplay playsinline muted></video>
+          <canvas id="cnvs" class="hidden" style="display:none"></canvas>
+          <div id="camHint" class="preview-hint">Camera feed appears here</div>
+        </div>
+        <div class="preview" id="imgWrap">
+          <div class="preview-hint" id="imgHint">Captured or uploaded image appears here</div>
+        </div>
       </div>
-      <div class="preview" id="imgWrap">Captured or uploaded tally image will display here for visual reference while entering rows.</div>
+      <div class="bar" style="margin-top:10px">
+        <button class="btn-a" id="openCamBtn">Open camera</button>
+        <label class="file-lbl">
+          Upload photo
+          <input type="file" id="imgFile" accept="image/*" class="hidden"/>
+        </label>
+        <button class="btn-s hidden" id="snapBtn">Snap photo</button>
+        <button class="btn-g hidden" id="stopCamBtn">Stop camera</button>
+      </div>
     </div>
-    <div class="bar">
-      <button class="btn-a" id="openCamBtn">Open camera</button>
-      <label class="file-lbl">
-        Upload photo
-        <input type="file" id="imgFile" accept="image/*" class="hidden"/>
-      </label>
-      <button class="btn-s hidden" id="snapBtn">Snap photo</button>
-      <button class="btn-g hidden" id="stopCamBtn">Stop camera</button>
-    </div>
+
     <div class="divider"></div>
-    <div class="bar">
-      <button class="btn-a" id="addRowBtn">+ Add row</button>
-      <button class="btn-s" id="rebuildBtn">Rebuild cumulative</button>
-      <button class="btn-g" id="validateBtn">Validate tally</button>
+
+    <!-- STEP 2: OCR -->
+    <div class="ocr-step" id="ocrStep2">
+      <div class="step-label">Step 2 — Read tally with OCR</div>
+      <div class="psub" style="margin-top:6px">Press <strong>Read Tally</strong> to extract numbers from the image. The app identifies joint numbers, measured lengths, and cumulative depths automatically. Runs entirely on this device — no internet required after the page loads.</div>
+      <div class="bar" style="margin-top:10px">
+        <button class="btn-a" id="ocrRunBtn" disabled>Read tally (no image yet)</button>
+      </div>
+      <div id="ocrProgressWrap" class="hidden" style="margin-top:12px">
+        <div class="ocr-prog-label" id="ocrProgLabel">Initializing OCR engine…</div>
+        <div class="ocr-prog-bar-bg"><div class="ocr-prog-bar" id="ocrProgBar" style="width:0%"></div></div>
+      </div>
     </div>
-    <div class="pills" id="tallyStatus"><div class="pill">No validation run yet</div></div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Joint #</th>
-            <th>Length (ft)</th>
-            <th>Cumulative (ft)</th>
-            <th>Pipe family</th>
-            <th>Grade</th>
-            <th>Notes</th>
-            <th>Del</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+
+    <div class="divider"></div>
+
+    <!-- STEP 3: REVIEW parsed rows -->
+    <div class="ocr-step" id="ocrStep3">
+      <div class="step-label">Step 3 — Review parsed rows</div>
+      <div class="psub" style="margin-top:6px">Rows extracted from the image are shown below. Cells highlighted in amber have low confidence or could not be matched — review and correct before accepting.</div>
+      <div id="ocrReviewWrap" class="hidden">
+        <div class="pills" id="ocrReviewStatus" style="margin-top:10px"></div>
+        <div class="table-wrap" style="margin-top:10px">
+          <table id="ocrReviewTable">
+            <thead>
+              <tr>
+                <th>Joint #</th>
+                <th>Length (ft)</th>
+                <th>Cumulative (ft)</th>
+                <th>Confidence</th>
+                <th>Accept</th>
+              </tr>
+            </thead>
+            <tbody id="ocrReviewBody"></tbody>
+          </table>
+        </div>
+        <div class="bar" style="margin-top:12px">
+          <button class="btn-a" id="ocrAcceptAllBtn">Accept all rows</button>
+          <button class="btn-s" id="ocrAcceptCheckedBtn">Accept checked only</button>
+          <button class="btn-g" id="ocrClearBtn">Clear OCR results</button>
+        </div>
+      </div>
+      <div id="ocrEmptyMsg" style="margin-top:10px;color:var(--muted);font-size:14px">Run OCR above to see parsed rows here.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP 4: FINAL TALLY TABLE -->
+    <div class="ocr-step">
+      <div class="step-label">Step 4 — Final tally table</div>
+      <div class="bar" style="margin-top:8px">
+        <button class="btn-a" id="addRowBtn">+ Add row</button>
+        <button class="btn-s" id="rebuildBtn">Rebuild cumulative</button>
+        <button class="btn-g" id="validateBtn">Validate tally</button>
+      </div>
+      <div class="pills" id="tallyStatus" style="margin-top:8px"><div class="pill">No validation run yet</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Joint #</th>
+              <th>Length (ft)</th>
+              <th>Cumulative (ft)</th>
+              <th>Pipe family</th>
+              <th>Grade</th>
+              <th>Notes</th>
+              <th>Del</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -725,13 +806,277 @@ $('addRowBtn').addEventListener('click',()=>addRow());
 $('rebuildBtn').addEventListener('click',rebuild);
 $('validateBtn').addEventListener('click',validate);
 
+
 // ================================================================
-// CAMERA
+// OCR ENGINE — Tesseract.js tally reader
+// ================================================================
+let S_ocrImage = null;
+let S_ocrParsed = [];
+
+function setImg(url){
+  S.image = url;
+  S_ocrImage = url;
+  const imgWrap = $('imgWrap');
+  imgWrap.innerHTML = `<img src="${url}" alt="Captured tally sheet">`;
+  $('imgHint') && ($('imgHint').style.display='none');
+  const btn = $('ocrRunBtn');
+  btn.disabled = false;
+  btn.textContent = 'Read tally from image';
+}
+
+// OCR run using Tesseract.js loaded from CDN
+async function runOCR(){
+  if(!S_ocrImage){alert('Capture or upload a tally image first.');return;}
+
+  const btn = $('ocrRunBtn');
+  btn.disabled = true;
+  btn.textContent = 'Reading…';
+
+  $('ocrProgressWrap').classList.remove('hidden');
+  $('ocrReviewWrap').classList.add('hidden');
+  $('ocrEmptyMsg').style.display='none';
+  setProgBar(5, 'Loading OCR engine…');
+
+  try{
+    const { createWorker } = Tesseract;
+    const worker = await createWorker('eng', 1, {
+      logger: m => {
+        if(m.status === 'recognizing text'){
+          const pct = Math.round((m.progress||0)*80)+15;
+          setProgBar(pct, `Reading image… ${pct}%`);
+        } else if(m.status === 'loading tesseract core'){
+          setProgBar(10, 'Loading OCR core…');
+        } else if(m.status === 'initializing tesseract'){
+          setProgBar(15, 'Initializing engine…');
+        } else if(m.status === 'loading language traineddata'){
+          setProgBar(20, 'Loading language model…');
+        } else if(m.status === 'initializing api'){
+          setProgBar(25, 'Starting recognition…');
+        }
+      }
+    });
+
+    setProgBar(15, 'Running recognition…');
+    const result = await worker.recognize(S_ocrImage);
+    await worker.terminate();
+    setProgBar(95, 'Parsing tally rows…');
+
+    const parsed = parseTallyText(result.data);
+    S_ocrParsed = parsed;
+    setProgBar(100, `Found ${parsed.length} row${parsed.length!==1?'s':''} — review below`);
+
+    renderOcrReview(parsed);
+    $('ocrReviewWrap').classList.remove('hidden');
+
+  } catch(err){
+    setProgBar(0, 'OCR failed: ' + err.message);
+    console.error('OCR error:', err);
+    $('ocrEmptyMsg').style.display='block';
+    $('ocrEmptyMsg').textContent = 'OCR could not read the image. Try a clearer photo with good lighting and flat perspective.';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Re-read image';
+}
+
+function setProgBar(pct, label){
+  const bar = $('ocrProgBar');
+  const lbl = $('ocrProgLabel');
+  if(bar) bar.style.width = pct + '%';
+  if(lbl) lbl.textContent = label;
+}
+
+// ================================================================
+// TALLY PARSER — extract rows from OCR text
+// ================================================================
+function parseTallyText(ocrData){
+  // Use word-level data with bounding boxes when available
+  const lines = ocrData.text ? ocrData.text.split('\n') : [];
+  const parsed = [];
+
+  // Regex patterns for field recognition
+  const reDecimal = /\b(\d{1,3}(?:\.\d{0,3})?)\b/g;
+  const reInt = /^\s*(\d{1,3})\s*$/;
+
+  // Group words into logical rows using Tesseract line text
+  // Strategy: scan each line for patterns matching tally rows
+  // A tally row typically has: [joint_num] [joint_length] [cumulative] [optional note]
+  // Numbers: joint# is small integer (1-999), lengths are 20-50 ft range, cum is increasing
+
+  lines.forEach((line, lineIdx) => {
+    const trimmed = line.trim();
+    if(!trimmed) return;
+
+    // Extract all numbers from this line
+    const nums = [];
+    let m;
+    const numRe = /(\d{1,4}(?:\.\d{1,3})?)/g;
+    while((m = numRe.exec(trimmed)) !== null){
+      nums.push({ val: parseFloat(m[1]), raw: m[1], pos: m.index });
+    }
+    if(nums.length < 2) return; // need at least 2 numbers for a tally row
+
+    // Classify numbers
+    // Joint number: first number that looks like an integer 1-999
+    // Length: decimal in reasonable pipe length range (15-55 ft)
+    // Cumulative: larger decimal, typically > joint length
+
+    let jointNum = null, jointLen = null, cumLen = null;
+    let confidence = 'high';
+
+    // First candidate: small integer for joint number
+    const intCandidates = nums.filter(n => Number.isInteger(n.val) && n.val >= 1 && n.val <= 9999);
+    const lenCandidates = nums.filter(n => n.val >= 10 && n.val <= 60);
+    const cumCandidates = nums.filter(n => n.val > 20);
+
+    if(intCandidates.length > 0) jointNum = intCandidates[0].val;
+    if(lenCandidates.length > 0) jointLen = lenCandidates[0].val;
+    if(cumCandidates.length > 1){
+      // Cumulative is usually the largest number on the line, or the rightmost large decimal
+      cumLen = Math.max(...cumCandidates.map(n=>n.val));
+    } else if(cumCandidates.length === 1 && cumCandidates[0].val !== jointLen){
+      cumLen = cumCandidates[0].val;
+    }
+
+    // Confidence flags
+    if(jointNum === null) confidence = 'low';
+    if(jointLen === null) confidence = 'low';
+    if(jointLen !== null && (jointLen < 15 || jointLen > 55)) confidence = 'low';
+    if(cumLen !== null && jointLen !== null && cumLen < jointLen) confidence = 'low';
+    if(nums.length === 2 && jointNum !== null && jointLen !== null){
+      // Only 2 numbers: joint# and length, no cumulative — normal for some tally formats
+      cumLen = null;
+    }
+
+    // Extract any non-numeric text on the line as potential note
+    const noteText = trimmed.replace(/[\d.\s,]/g, '').trim();
+    const note = noteText.length > 0 && noteText.length < 40 ? noteText : '';
+
+    // Only add if we have at minimum a joint length
+    if(jointLen !== null || (nums.length >= 2)){
+      parsed.push({
+        joint: jointNum,
+        len: jointLen,
+        cum: cumLen,
+        note: note,
+        confidence: confidence,
+        rawLine: trimmed,
+        lineIdx: lineIdx
+      });
+    }
+  });
+
+  // Post-process: sort by joint number if available, rebuild cumulative if missing
+  const withJoint = parsed.filter(r => r.joint !== null);
+  const withoutJoint = parsed.filter(r => r.joint === null);
+
+  const sorted = withJoint.sort((a,b) => a.joint - b.joint).concat(withoutJoint);
+
+  // If cumulative is missing for all rows, rebuild it
+  const hasCum = sorted.some(r => r.cum !== null);
+  if(!hasCum){
+    let running = 0;
+    sorted.forEach(r => {
+      if(r.len !== null){ running += r.len; r.cum = parseFloat(running.toFixed(2)); }
+    });
+  }
+
+  // Auto-assign joint numbers if missing
+  sorted.forEach((r, i) => {
+    if(r.joint === null) r.joint = i + 1;
+  });
+
+  return sorted;
+}
+
+// ================================================================
+// OCR REVIEW TABLE
+// ================================================================
+function renderOcrReview(rows){
+  const tbody = $('ocrReviewBody');
+  tbody.innerHTML = '';
+  $('ocrReviewStatus').innerHTML = '';
+
+  if(!rows.length){
+    $('ocrEmptyMsg').style.display='block';
+    $('ocrEmptyMsg').textContent = 'No tally rows could be extracted. Try a clearer image with better lighting.';
+    return;
+  }
+
+  const highConf = rows.filter(r=>r.confidence==='high').length;
+  const lowConf = rows.filter(r=>r.confidence==='low').length;
+  $('ocrReviewStatus').innerHTML =
+    `<div class="pill good">${highConf} high-confidence row${highConf!==1?'s':''}</div>` +
+    (lowConf > 0 ? `<div class="pill warn">${lowConf} row${lowConf!==1?'s':''} need review (highlighted)</div>` : '');
+
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'ocr-review-row ' + (r.confidence === 'high' ? 'ok-conf' : 'low-conf');
+    const confClass = r.confidence === 'high' ? 'conf-high' : 'conf-low';
+    const confLabel = r.confidence === 'high' ? 'Good' : 'Review';
+    tr.innerHTML = `
+      <td><input type="number" class="ocr-edit" data-i="${i}" data-k="joint" value="${r.joint||''}" style="width:70px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit"></td>
+      <td><input type="number" step="0.01" class="ocr-edit" data-i="${i}" data-k="len" value="${r.len||''}" style="width:90px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit" placeholder="ft"></td>
+      <td><input type="number" step="0.01" class="ocr-edit" data-i="${i}" data-k="cum" value="${r.cum||''}" style="width:100px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit" placeholder="cumulative"></td>
+      <td><span class="conf-badge ${confClass}">${confLabel}</span><div style="font-size:10px;color:var(--muted);margin-top:3px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.rawLine}">${r.rawLine.substring(0,25)}${r.rawLine.length>25?'…':''}</div></td>
+      <td><input type="checkbox" class="ocr-check" data-i="${i}" ${r.confidence==='high'?'checked':''}></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Live edit updates parsed array
+  tbody.querySelectorAll('.ocr-edit').forEach(el => {
+    el.addEventListener('change', e => {
+      const i = Number(e.target.dataset.i), k = e.target.dataset.k;
+      S_ocrParsed[i][k] = parseFloat(e.target.value) || e.target.value;
+    });
+  });
+}
+
+function acceptOcrRows(checkedOnly){
+  const tbody = $('ocrReviewBody');
+  const checkboxes = tbody.querySelectorAll('.ocr-check');
+  const fam = $('selFamily').value || 'Drill Pipe';
+
+  S_ocrParsed.forEach((r, i) => {
+    if(checkedOnly && !checkboxes[i]?.checked) return;
+    S.rows.push({
+      joint: r.joint || (S.rows.length + 1),
+      len: r.len || '',
+      cum: r.cum || '',
+      fam: fam,
+      grade: '',
+      notes: r.note || ''
+    });
+  });
+
+  renderRows();
+  rebuild();
+  $('ocrReviewWrap').classList.add('hidden');
+  $('ocrEmptyMsg').style.display='block';
+  $('ocrEmptyMsg').textContent = `${checkedOnly?'Checked':'All'} OCR rows accepted into tally table below. Review and correct as needed.`;
+  S_ocrParsed = [];
+
+  // Scroll to tally table
+  $('tbody').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+$('ocrRunBtn').addEventListener('click', runOCR);
+$('ocrAcceptAllBtn').addEventListener('click', () => acceptOcrRows(false));
+$('ocrAcceptCheckedBtn').addEventListener('click', () => acceptOcrRows(true));
+$('ocrClearBtn').addEventListener('click', () => {
+  S_ocrParsed = [];
+  $('ocrReviewWrap').classList.add('hidden');
+  $('ocrEmptyMsg').style.display='block';
+  $('ocrEmptyMsg').textContent = 'Run OCR above to see parsed rows here.';
+});
+
+// ================================================================
+// CAMERA (updated)
 // ================================================================
 const vid=$('vid'),cnvs=$('cnvs');
 async function openCam(){
   try{
-    S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
     vid.srcObject=S.stream; vid.classList.remove('hidden');
     $('camHint').classList.add('hidden');
     $('snapBtn').classList.remove('hidden'); $('stopCamBtn').classList.remove('hidden');
@@ -745,17 +1090,13 @@ function stopCam(){
   $('openCamBtn').classList.remove('hidden');
   if(!S.image)$('camHint').classList.remove('hidden');
 }
-function setImg(url){
-  S.image=url;
-  $('imgWrap').innerHTML=`<img src="${url}" alt="Captured tally sheet — reference while entering rows">`;
-}
 $('openCamBtn').addEventListener('click',openCam);
 $('stopCamBtn').addEventListener('click',stopCam);
 $('snapBtn').addEventListener('click',()=>{
   const ctx=cnvs.getContext('2d');
   cnvs.width=vid.videoWidth; cnvs.height=vid.videoHeight;
   ctx.drawImage(vid,0,0,cnvs.width,cnvs.height);
-  setImg(cnvs.toDataURL('image/jpeg',0.90)); stopCam();
+  setImg(cnvs.toDataURL('image/jpeg',0.95)); stopCam();
 });
 $('imgFile').addEventListener('change',e=>{
   const f=e.target.files?.[0]; if(!f) return;
