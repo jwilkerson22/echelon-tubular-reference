@@ -3,148 +3,143 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
-  <title>Echelon IPM – Tubular Reference</title>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>Echelon IPM – Tubular Tally</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root{
       --bg:#f0f3f6;--panel:#fff;--line:#cdd5de;--text:#17212b;--muted:#5a6e80;
       --accent:#b87333;--accent-d:#8e531f;--good:#277a33;--warn:#a76017;--bad:#b43030;
-      --shadow:0 6px 22px rgba(15,23,42,.08);--r:18px;
+      --shadow:0 6px 22px rgba(15,23,42,.08);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{margin:0;font-family:'Barlow',sans-serif;font-size:16px;background:var(--bg);color:var(--text);min-height:100vh}
-    .app{max-width:1080px;margin:0 auto;padding:12px 12px 110px}
+    .app{max-width:1080px;margin:0 auto;padding:12px 12px 130px}
+    .hidden{display:none!important}
 
-    /* TOP */
     .top{position:sticky;top:8px;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:10px;
-      background:rgba(255,255,255,.95);backdrop-filter:blur(14px);
+      background:rgba(255,255,255,.96);backdrop-filter:blur(14px);
       border:1px solid rgba(23,33,43,.08);border-radius:22px;padding:10px 14px;box-shadow:var(--shadow)}
     .brand{display:flex;gap:11px;align-items:center}
     .logo-box{width:46px;height:46px;flex:0 0 46px;border-radius:13px;
       background:linear-gradient(145deg,#253040,#151d27);display:grid;place-items:center}
-    .logo-box svg{width:28px;height:28px}
     .t-eye{font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}
-    .t-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;line-height:1;font-weight:700}
-    .t-sub{font-size:11.5px;color:var(--muted)}
-    .top-btns{display:flex;gap:8px;flex-shrink:0}
-    button{appearance:none;border:none;border-radius:14px;min-height:46px;padding:10px 14px;
+    .t-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;line-height:1;font-weight:700}
+    .t-sub{font-size:11px;color:var(--muted)}
+    .top-btns{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+
+    button{appearance:none;border:none;border-radius:14px;min-height:46px;padding:10px 16px;
       font:700 14px 'Barlow',sans-serif;cursor:pointer;line-height:1;transition:filter .15s}
-    button:hover{filter:brightness(1.07)}
+    button:active{filter:brightness(.9)}
     .btn-a{background:var(--accent);color:#fff}
     .btn-g{background:#fff;border:1px solid var(--line);color:var(--text)}
     .btn-s{background:#edf1f5;color:var(--text)}
-    .file-lbl{display:flex;align-items:center;padding:10px 14px;border-radius:14px;background:#edf1f5;
+    .btn-warn{background:#fff3e0;color:var(--warn);border:1px solid #f0c070}
+    .btn-bad{background:#fee2e2;color:var(--bad);border:1px solid #fca5a5}
+    .file-lbl{display:flex;align-items:center;padding:10px 16px;border-radius:14px;background:#edf1f5;
       font:700 14px 'Barlow',sans-serif;cursor:pointer;min-height:46px;border:1px solid var(--line)}
 
-    /* HERO */
-    .hero{margin-top:12px;background:linear-gradient(155deg,rgba(184,115,51,.11),#fff 55%);
-      border:1px solid rgba(23,33,43,.07);border-radius:24px;padding:16px 18px;box-shadow:var(--shadow)}
-    .hero h1{margin:0;font-family:'Barlow Condensed',sans-serif;font-size:32px;line-height:1.1;font-weight:700}
-    .hero p{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:70ch}
-    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
-    .kpi{background:rgba(0,0,0,.04);border:1px solid rgba(23,33,43,.07);border-radius:16px;padding:10px}
-    .kpi .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
-    .kpi .kv{font-size:22px;font-weight:700;margin-top:5px}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+    .kpi{background:#fff;border:1px solid rgba(23,33,43,.07);border-radius:16px;padding:10px;box-shadow:var(--shadow)}
+    .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
+    .kv{font-size:22px;font-weight:700;margin-top:4px;font-family:'Barlow Condensed',sans-serif}
 
-    /* NAV */
     .nav-wrap{margin-top:12px;background:#fff;border:1px solid rgba(23,33,43,.07);border-radius:20px;padding:7px;box-shadow:var(--shadow)}
     .nav{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-    .nav button{background:transparent;border:1px solid transparent;color:var(--muted);min-height:48px;font-size:14px}
+    .nav button{background:transparent;border:1px solid transparent;color:var(--muted);min-height:48px;font-size:13px;border-radius:13px}
     .nav button.on{background:#fff7ee;border-color:#d9a96c;color:var(--text)}
 
-    /* PANELS */
     .panel{margin-top:12px;background:var(--panel);border:1px solid rgba(23,33,43,.07);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
     .ph2{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;margin:0}
     .psub{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:72ch}
-
     .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
     .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
     .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
-
     .field{display:flex;flex-direction:column;gap:5px}
     .field label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
     .field input,.field select{width:100%;min-height:50px;border:1px solid var(--line);border-radius:13px;padding:12px;background:#fff;color:var(--text);font:inherit}
     .field input:focus,.field select:focus{outline:2px solid var(--accent);border-color:transparent}
     .field input[readonly]{background:#f2f6f9;color:var(--muted)}
-
     .bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
-
     .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .pill{padding:6px 11px;border-radius:999px;background:#edf1f5;border:1px solid var(--line);font-size:13px}
+    .pill{padding:6px 12px;border-radius:999px;background:#edf1f5;border:1px solid var(--line);font-size:13px}
     .pill.good{background:#edf7ee;border-color:#a8d4ad;color:var(--good)}
     .pill.warn{background:#fff7ed;border-color:#f0d0a5;color:var(--warn)}
-
+    .pill.bad{background:#fef2f2;border-color:#fca5a5;color:var(--bad)}
     .result{background:#f4f7fa;border:1px solid var(--line);border-radius:16px;padding:12px}
-    .result .rl{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-    .result .rv{font-size:22px;font-weight:700;margin-top:5px}
+    .rl{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+    .rv{font-size:20px;font-weight:700;margin-top:4px;font-family:'Barlow Condensed',sans-serif}
+    .card{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:14px}
+    .card h3{margin:0 0 6px;font-size:14px;font-weight:700}
+    .card p{margin:0;font-size:13px;color:var(--muted);line-height:1.7}
+    .divider{height:1px;background:var(--line);margin:16px 0}
+    .small{font-size:13px;font-weight:600;color:var(--muted)}
 
-    .card{background:#f4f7fa;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}
-    .card h3{margin:0 0 6px;font-size:17px}
-    .card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6}
+    /* JOB HEADER */
+    .job-strip{background:linear-gradient(135deg,#1c2a38,#253040);border-radius:18px;padding:14px 16px;margin-top:14px}
+    .job-strip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .jl{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.5);margin-bottom:4px}
+    .job-input{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.25);color:#fff;font:600 15px 'Barlow',sans-serif;width:100%;padding:4px 0;outline:none}
+    .job-input::placeholder{color:rgba(255,255,255,.3)}
 
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;margin-top:12px}
-    table{width:100%;border-collapse:collapse;min-width:700px}
-    th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13.5px}
-    th{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);background:#f4f7f9;position:sticky;top:0;z-index:2}
-    tr:last-child td{border-bottom:none}
-    td input,td select{width:100%;min-height:40px;border:1px solid var(--line);border-radius:11px;padding:7px 9px;font:inherit}
+    /* PIPE SELECTOR */
+    .pipe-selector{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px}
+    .ps-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:10px}
+    .pipe-badge{display:inline-flex;align-items:center;gap:8px;background:#fff7ee;border:1px solid #d9a96c;border-radius:12px;padding:9px 14px;font-size:14px;font-weight:600;margin-top:10px;color:var(--accent-d)}
 
-    .preview{background:#f2f6f9;border:1px solid var(--line);border-radius:16px;min-height:230px;
-      display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);
-      padding:12px;overflow:hidden;font-size:14px}
-    .preview img,.preview video{width:100%;max-height:280px;object-fit:contain;border-radius:12px}
+    /* TALLY TABLE */
+    .table-wrap{overflow-x:auto;margin-top:12px;border-radius:16px;border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    thead th{background:#f0f3f6;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap;border-bottom:1px solid var(--line)}
+    tbody tr{border-bottom:1px solid rgba(205,213,222,.4)}
+    tbody tr:last-child{border-bottom:none}
+    tbody td{padding:5px 7px;vertical-align:middle}
+    tbody td input{width:100%;min-height:40px;border:1px solid transparent;border-radius:10px;padding:6px 10px;background:transparent;font:inherit;color:var(--text)}
+    tbody td input:focus{border-color:var(--accent);background:#fffdf8;outline:none}
+    tfoot tr td{background:#f0f3f6;padding:10px 12px;font-weight:700;font-size:13px;border-top:2px solid var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:15px}
 
-    .sticky-bar{position:sticky;bottom:10px;display:flex;gap:10px;margin-top:12px;
-      background:#fff;border:1px solid rgba(23,33,43,.08);border-radius:18px;
-      padding:10px;box-shadow:var(--shadow)}
-    .sticky-bar button{flex:1}
-
-    .divider{height:1px;background:var(--line);margin:14px 0}
-    .hidden{display:none!important}
-    .mt{margin-top:12px}
-    .mt8{margin-top:8px}
-    .small{font-size:13px;color:var(--muted)}
-
-    @media(max-width:720px){
-      .kpis,.nav,.g2,.g3,.g4{grid-template-columns:1fr}
-      .top{flex-direction:column;align-items:flex-start}
-      .top-btns{width:100%}
-      .top-btns button{flex:1}
-    }
-
-    /* ===== OCR TALLY STYLES ===== */
-    .ocr-step{margin-top:14px}
-    .step-label{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-    .preview{border:2px dashed var(--line);border-radius:18px;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f4f7fa;position:relative}
+    /* OCR */
+    .step-label{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+    .preview{border:2px dashed var(--line);border-radius:18px;min-height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f4f7fa}
     .preview img{width:100%;height:100%;object-fit:contain;border-radius:16px}
     .preview-hint{color:var(--muted);font-size:14px;padding:20px;text-align:center}
     video{width:100%;border-radius:16px;object-fit:cover}
     .ocr-prog-label{font-size:13px;color:var(--muted);margin-bottom:6px}
     .ocr-prog-bar-bg{background:#e2e8f0;border-radius:999px;height:10px;overflow:hidden}
-    .ocr-prog-bar{background:var(--accent);height:10px;border-radius:999px;transition:width .25s ease}
-    .ocr-review-row.low-conf td{background:#fff8ed}
-    .ocr-review-row.ok-conf td{background:#f0faf1}
+    .ocr-prog-bar{background:var(--accent);height:10px;border-radius:999px;transition:width .3s ease}
     .conf-badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
     .conf-high{background:#edf7ee;color:var(--good)}
     .conf-low{background:#fff7ed;color:var(--warn)}
-    .conf-bad{background:#fef2f2;color:var(--bad)}
-    #ocrReviewTable th{font-size:12px}
-    #ocrReviewTable td{padding:8px 10px;vertical-align:middle}
-    .ocr-check{width:20px;height:20px;cursor:pointer}
-    .divider{height:1px;background:var(--line);margin:16px 0}
+    .ocr-row-ok td{background:#f8fdf8}
+    .ocr-row-low td{background:#fffbf0}
+    .ocr-check{width:20px;height:20px;cursor:pointer;accent-color:var(--accent)}
+
+    /* CLEAR */
+    .clear-section{background:#fff5f5;border:1px solid #fca5a5;border-radius:16px;padding:14px;margin-top:16px}
+    .cs-title{font-weight:700;font-size:14px;color:var(--bad);margin-bottom:6px}
+
+    @media(max-width:640px){
+      .kpis,.g2,.g3,.g4,.job-strip-grid{grid-template-columns:1fr 1fr}
+      .top{flex-direction:column;align-items:flex-start}
+      .top-btns{width:100%;justify-content:flex-end}
+      .nav button{font-size:11px;min-height:44px;padding:8px 4px}
+    }
+    @media(max-width:400px){
+      .kpis{grid-template-columns:1fr 1fr}
+    }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
 <div class="app">
 
-  <!-- TOP BAR -->
   <div class="top">
     <div class="brand">
       <div class="logo-box">
-        <svg viewBox="0 0 24 24" fill="none">
+        <svg viewBox="0 0 24 24" fill="none" width="28" height="28">
           <rect x="3" y="5" width="13" height="2.8" rx="1.4" fill="#B87333"/>
           <rect x="3" y="10.6" width="9.5" height="2.8" rx="1.4" fill="#C8D2DC"/>
           <rect x="3" y="16.2" width="13" height="2.8" rx="1.4" fill="#B87333"/>
@@ -153,101 +148,64 @@
       <div>
         <div class="t-eye">Echelon IPM</div>
         <div class="t-title">Tubular Reference &amp; Tally</div>
-        <div class="t-sub">Complete OCTG catalog · Volume calculations · Tally scan &amp; export</div>
+        <div class="t-sub">API 5CT · 5DP · Spec 7-1 · OCR Tally Scan</div>
       </div>
     </div>
     <div class="top-btns">
-      <button class="btn-g" id="demoBtn">Load Demo</button>
+      <button class="btn-g" id="demoBtn">Demo</button>
       <button class="btn-a" id="exportBtn">Export CSV</button>
     </div>
   </div>
 
-  <!-- HERO -->
-  <div class="hero">
-    <h1>Upstream tubular intelligence — field-ready.</h1>
-    <p>Select any OCTG product line from 1.050&quot; tubing through 20&quot; conductor casing. ID, wall, drift, and strength data fill automatically from the built-in API 5CT / 5DP / Spec 7-1 catalog. Calculate string capacity, annular volume, displacement, circulation, and hydrostatics. Photograph any handwritten pipe tally with the phone camera and convert it to a clean electronic table for export.</p>
-    <div class="kpis">
-      <div class="kpi"><div class="kl">Selected OD</div><div class="kv" id="kOd">— in</div></div>
-      <div class="kpi"><div class="kl">Catalog ID</div><div class="kv" id="kId">— in</div></div>
-      <div class="kpi"><div class="kl">Tally depth</div><div class="kv" id="kDepth">0 ft</div></div>
-      <div class="kpi"><div class="kl">Full circulation</div><div class="kv" id="kCirc">0 bbl</div></div>
-    </div>
+  <div class="kpis">
+    <div class="kpi"><div class="kl">Selected OD</div><div class="kv" id="kOd">—</div></div>
+    <div class="kpi"><div class="kl">Selected ID</div><div class="kv" id="kId">—</div></div>
+    <div class="kpi"><div class="kl">Total joints</div><div class="kv" id="kJoints">0</div></div>
+    <div class="kpi"><div class="kl">Tally depth (ft)</div><div class="kv" id="kDepth">0</div></div>
   </div>
 
-  <!-- NAV -->
   <div class="nav-wrap">
     <div class="nav">
-      <button class="on" data-v="ref">Reference</button>
+      <button data-v="ref" class="on">Reference</button>
       <button data-v="cap">Capacity</button>
       <button data-v="ann">Annulus</button>
       <button data-v="tally">Tally</button>
-      <button data-v="res">Results</button>
+      <button data-v="res">Summary</button>
     </div>
   </div>
 
-  <!-- ========== REFERENCE ========== -->
+  <!-- REFERENCE -->
   <div class="panel" id="pref">
     <div class="ph2">Tubular dimensions &amp; strengths</div>
-    <div class="psub">Select any OCTG family, OD, and weight. ID, wall thickness, drift diameter, collapse, burst, and body yield fill from the API catalog. All standard sizes and weights are included for every family.</div>
+    <div class="psub">Full API 5CT / 5DP / Spec 7-1 catalog. Select family, OD, and weight — all fields populate automatically.</div>
     <div class="g2">
-      <div class="field">
-        <label>Family</label>
-        <select id="selFamily"></select>
-      </div>
-      <div class="field">
-        <label>OD (in)</label>
-        <select id="selOd"></select>
-      </div>
-      <div class="field">
-        <label>Weight (lb/ft)</label>
-        <select id="selWt"></select>
-      </div>
-      <div class="field">
-        <label>Catalog ID (in)</label>
-        <input id="fId" readonly>
-      </div>
-      <div class="field">
-        <label>Wall thickness (in)</label>
-        <input id="fWall" readonly>
-      </div>
-      <div class="field">
-        <label>Drift diameter (in)</label>
-        <input id="fDrift" readonly>
-      </div>
-      <div class="field">
-        <label>Collapse resistance (psi)</label>
-        <input id="fCollapse" readonly>
-      </div>
-      <div class="field">
-        <label>Burst resistance (psi)</label>
-        <input id="fBurst" readonly>
-      </div>
-      <div class="field">
-        <label>Body yield / tension (lb)</label>
-        <input id="fTension" readonly>
-      </div>
-      <div class="field">
-        <label>Common API grades</label>
-        <input id="fGrades" readonly>
-      </div>
+      <div class="field"><label>Family</label><select id="selFamily"></select></div>
+      <div class="field"><label>OD (in)</label><select id="selOd"></select></div>
+      <div class="field"><label>Weight (lb/ft)</label><select id="selWt"></select></div>
+      <div class="field"><label>ID (in)</label><input id="fId" readonly></div>
+      <div class="field"><label>Wall (in)</label><input id="fWall" readonly></div>
+      <div class="field"><label>Drift (in)</label><input id="fDrift" readonly></div>
+      <div class="field"><label>Collapse (psi)</label><input id="fCollapse" readonly></div>
+      <div class="field"><label>Burst (psi)</label><input id="fBurst" readonly></div>
+      <div class="field"><label>Body yield / tension (lb)</label><input id="fTension" readonly></div>
+      <div class="field"><label>API grades</label><input id="fGrades" readonly></div>
     </div>
     <div class="bar">
-      <button class="btn-s" id="useCapBtn">Use in Capacity calc</button>
+      <button class="btn-s" id="useCapBtn">Use in Capacity</button>
       <button class="btn-s" id="copyRefBtn">Copy to clipboard</button>
     </div>
     <div class="pills" id="refPills"><div class="pill">Select a tubular above</div></div>
   </div>
 
-  <!-- ========== CAPACITY ========== -->
+  <!-- CAPACITY -->
   <div class="panel hidden" id="pcap">
     <div class="ph2">String capacity &amp; displacement</div>
-    <div class="psub">OD and ID carry forward from the Reference tab. Override if needed. Capacity is the internal fluid volume per foot. Displacement is the steel body volume per foot (used for calculating fluid displaced when running pipe).</div>
+    <div class="psub">OD and ID carry forward from Reference. Capacity is the internal fluid volume per foot.</div>
     <div class="g3">
       <div class="field"><label>Pipe OD (in)</label><input id="cOd" type="number" step="0.001"></div>
       <div class="field"><label>Pipe ID (in)</label><input id="cId" type="number" step="0.001"></div>
       <div class="field"><label>String length (ft)</label><input id="cLen" type="number" step="0.1"></div>
-      <div class="field">
-        <label>Output unit</label>
+      <div class="field"><label>Output unit</label>
         <select id="cUnit">
           <option value="bbl">bbl</option>
           <option value="gal">gal</option>
@@ -261,38 +219,35 @@
       <div class="result"><div class="rl">String volume</div><div class="rv" id="rCapTot">—</div></div>
       <div class="result"><div class="rl">Displacement</div><div class="rv" id="rDisp">—</div></div>
     </div>
-    <div class="card">
-      <h3>Formulas</h3>
-      <p>Capacity (bbl/ft) = ID² ÷ 1029.4 &nbsp;|&nbsp; Displacement (bbl/ft) = (OD² − ID²) ÷ 1029.4 &nbsp;|&nbsp; String volume = Capacity × Length (ft) &nbsp;|&nbsp; Gallons = bbl × 42 &nbsp;|&nbsp; ft³ = bbl × 5.6146</p>
+    <div class="card"><h3>Formulas</h3>
+      <p>Capacity (bbl/ft) = ID² ÷ 1029.4 &nbsp;|&nbsp; Displacement (bbl/ft) = (OD² − ID²) ÷ 1029.4 &nbsp;|&nbsp; gal = bbl × 42 &nbsp;|&nbsp; ft³ = bbl × 5.6146</p>
     </div>
   </div>
 
-  <!-- ========== ANNULUS ========== -->
+  <!-- ANNULUS -->
   <div class="panel hidden" id="pann">
     <div class="ph2">Annular volume &amp; hydrostatics</div>
-    <div class="psub">Calculate annular volume between the selected pipe OD and either the open hole or a casing inner wall. Look up casing ID by selecting casing OD and weight from the full catalog — no manual entry needed.</div>
+    <div class="psub">Calculate annular volume between pipe OD and open hole or casing inner wall.</div>
     <div class="divider"></div>
-    <div class="small"><strong>Pipe in open hole</strong></div>
+    <div class="small">Pipe in open hole</div>
     <div class="g3" style="margin-top:10px">
-      <div class="field"><label>Pipe OD (in) — from reference</label><input id="aOd" type="number" step="0.001"></div>
+      <div class="field"><label>Pipe OD (in)</label><input id="aOd" type="number" step="0.001"></div>
       <div class="field"><label>Open hole diameter (in)</label><input id="aHole" type="number" step="0.001" placeholder="e.g. 8.75"></div>
     </div>
     <div class="divider"></div>
-    <div class="small"><strong>Pipe in cased hole — look up casing ID</strong></div>
+    <div class="small">Pipe in cased hole — casing ID lookup</div>
     <div class="g2" style="margin-top:10px">
       <div class="field"><label>Casing OD (in)</label><select id="aCsgOd"></select></div>
       <div class="field"><label>Casing weight (lb/ft)</label><select id="aCsgWt"></select></div>
-      <div class="field"><label>Casing ID (in) — auto-filled</label><input id="aCsgId" readonly></div>
+      <div class="field"><label>Casing ID (in)</label><input id="aCsgId" readonly></div>
     </div>
-    <div class="bar">
-      <button class="btn-s" id="lookupAnnBtn">Look up casing ID</button>
-    </div>
+    <div class="bar"><button class="btn-s" id="lookupAnnBtn">Look up casing ID</button></div>
     <div class="pills" id="annStatus"><div class="pill">Select casing and click look up</div></div>
     <div class="divider"></div>
     <div class="g2">
       <div class="field"><label>Interval length (ft)</label><input id="aLen" type="number" step="0.1"></div>
       <div class="field"><label>Mud weight (ppg)</label><input id="aMw" type="number" step="0.1" value="9.5"></div>
-      <div class="field"><label>Depth for hydrostatic (ft TVD)</label><input id="aHydDepth" type="number" step="1"></div>
+      <div class="field"><label>Depth TVD (ft)</label><input id="aHydDepth" type="number" step="1"></div>
     </div>
     <div class="bar"><button class="btn-a" id="runAnnBtn">Calculate</button></div>
     <div class="g3">
@@ -300,331 +255,404 @@
       <div class="result"><div class="rl">Annular volume</div><div class="rv" id="rAnnVol">—</div></div>
       <div class="result"><div class="rl">Hydrostatic</div><div class="rv" id="rHyd">—</div></div>
     </div>
-    <div class="card">
-      <h3>Formulas</h3>
-      <p>Annular capacity (bbl/ft) = (D_outer² − D_pipe_OD²) ÷ 1029.4 &nbsp;|&nbsp; where D_outer is open hole diameter or casing ID (in) &nbsp;|&nbsp; Annular volume = Annular capacity × Length (ft) &nbsp;|&nbsp; Hydrostatic (psi) = 0.052 × MW (ppg) × TVD (ft)</p>
+    <div class="card"><h3>Formulas</h3>
+      <p>Ann capacity (bbl/ft) = (D_outer² − D_pipe_OD²) ÷ 1029.4 &nbsp;|&nbsp; Hydrostatic (psi) = 0.052 × MW (ppg) × TVD (ft)</p>
     </div>
   </div>
 
-  <!-- ========== TALLY ========== -->
+  <!-- TALLY -->
   <div class="panel hidden" id="ptally">
-    <div class="ph2">Tally scan &amp; OCR transcription</div>
-    <div class="psub">Photograph a handwritten tally sheet or upload an image. The app reads the tally automatically and populates the table. Review and correct any flagged rows before saving.</div>
+    <div class="ph2">Pipe tally</div>
+    <div class="psub">Enter joints manually, scan a handwritten tally with OCR, or both. One section per tally. Clear between sections or wells.</div>
 
-    <!-- STEP 1: CAPTURE -->
-    <div class="ocr-step" id="ocrStep1">
-      <div class="step-label">Step 1 — Capture tally image</div>
-      <div class="g2" style="margin-top:10px">
-        <div class="preview" id="camWrap">
-          <video id="vid" class="hidden" autoplay playsinline muted></video>
-          <canvas id="cnvs" class="hidden" style="display:none"></canvas>
-          <div id="camHint" class="preview-hint">Camera feed appears here</div>
+    <!-- JOB HEADER -->
+    <div class="job-strip">
+      <div class="job-strip-grid">
+        <div>
+          <div class="jl">Well / Job name</div>
+          <input id="jobWell" class="job-input" placeholder="e.g. State 21H">
         </div>
-        <div class="preview" id="imgWrap">
-          <div class="preview-hint" id="imgHint">Captured or uploaded image appears here</div>
+        <div>
+          <div class="jl">String / Section</div>
+          <input id="jobSection" class="job-input" placeholder="e.g. Production Casing">
+        </div>
+        <div>
+          <div class="jl">Date</div>
+          <input id="jobDate" type="date" class="job-input">
         </div>
       </div>
-      <div class="bar" style="margin-top:10px">
-        <button class="btn-a" id="openCamBtn">Open camera</button>
-        <label class="file-lbl">
-          Upload photo
-          <input type="file" id="imgFile" accept="image/*" class="hidden"/>
-        </label>
-        <button class="btn-s hidden" id="snapBtn">Snap photo</button>
-        <button class="btn-g hidden" id="stopCamBtn">Stop camera</button>
+    </div>
+
+    <!-- PIPE TYPE SELECTOR -->
+    <div class="pipe-selector">
+      <div class="ps-title">Pipe type for this tally</div>
+      <div class="g2" style="margin-top:0">
+        <div class="field"><label>Family</label><select id="tallyFamily"></select></div>
+        <div class="field"><label>OD (in)</label><select id="tallyOd"></select></div>
+        <div class="field"><label>Weight (lb/ft)</label><select id="tallyWt"></select></div>
+        <div class="field"><label>Grade</label><input id="tallyGrade" placeholder="e.g. P110, N80"></div>
+        <div class="field"><label>Connection</label><input id="tallyConn" placeholder="e.g. BTC, LTC, VAM TOP"></div>
+      </div>
+      <div id="tallyPipeBadge" class="pipe-badge hidden">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12H2M12 2v20"/></svg>
+        <span id="tallyPipeBadgeText"></span>
       </div>
     </div>
 
     <div class="divider"></div>
 
-    <!-- STEP 2: OCR -->
-    <div class="ocr-step" id="ocrStep2">
-      <div class="step-label">Step 2 — Read tally with OCR</div>
-      <div class="psub" style="margin-top:6px">Press <strong>Read Tally</strong> to extract numbers from the image. The app identifies joint numbers, measured lengths, and cumulative depths automatically. Runs entirely on this device — no internet required after the page loads.</div>
-      <div class="bar" style="margin-top:10px">
-        <button class="btn-a" id="ocrRunBtn" disabled>Read tally (no image yet)</button>
+    <!-- OCR SCAN -->
+    <div class="step-label">Scan handwritten tally (optional)</div>
+    <div class="psub">Photograph your paper tally sheet. The app reads joint numbers and lengths automatically, then populates the table. Review before accepting.</div>
+    <div class="g2" style="margin-top:10px">
+      <div class="preview" id="camWrap">
+        <video id="vid" class="hidden" autoplay playsinline muted></video>
+        <canvas id="cnvs" style="display:none"></canvas>
+        <div id="camHint" class="preview-hint">Camera feed appears here</div>
       </div>
-      <div id="ocrProgressWrap" class="hidden" style="margin-top:12px">
-        <div class="ocr-prog-label" id="ocrProgLabel">Initializing OCR engine…</div>
-        <div class="ocr-prog-bar-bg"><div class="ocr-prog-bar" id="ocrProgBar" style="width:0%"></div></div>
+      <div class="preview" id="imgWrap">
+        <div class="preview-hint" id="imgHint">Captured or uploaded image appears here</div>
       </div>
     </div>
-
-    <div class="divider"></div>
-
-    <!-- STEP 3: REVIEW parsed rows -->
-    <div class="ocr-step" id="ocrStep3">
-      <div class="step-label">Step 3 — Review parsed rows</div>
-      <div class="psub" style="margin-top:6px">Rows extracted from the image are shown below. Cells highlighted in amber have low confidence or could not be matched — review and correct before accepting.</div>
-      <div id="ocrReviewWrap" class="hidden">
-        <div class="pills" id="ocrReviewStatus" style="margin-top:10px"></div>
-        <div class="table-wrap" style="margin-top:10px">
-          <table id="ocrReviewTable">
-            <thead>
-              <tr>
-                <th>Joint #</th>
-                <th>Length (ft)</th>
-                <th>Cumulative (ft)</th>
-                <th>Confidence</th>
-                <th>Accept</th>
-              </tr>
-            </thead>
-            <tbody id="ocrReviewBody"></tbody>
-          </table>
-        </div>
-        <div class="bar" style="margin-top:12px">
-          <button class="btn-a" id="ocrAcceptAllBtn">Accept all rows</button>
-          <button class="btn-s" id="ocrAcceptCheckedBtn">Accept checked only</button>
-          <button class="btn-g" id="ocrClearBtn">Clear OCR results</button>
-        </div>
-      </div>
-      <div id="ocrEmptyMsg" style="margin-top:10px;color:var(--muted);font-size:14px">Run OCR above to see parsed rows here.</div>
+    <div class="bar">
+      <button class="btn-a" id="openCamBtn">Open camera</button>
+      <label class="file-lbl">Upload photo<input type="file" id="imgFile" accept="image/*" class="hidden"/></label>
+      <button class="btn-s hidden" id="snapBtn">Snap photo</button>
+      <button class="btn-g hidden" id="stopCamBtn">Stop camera</button>
     </div>
-
-    <div class="divider"></div>
-
-    <!-- STEP 4: FINAL TALLY TABLE -->
-    <div class="ocr-step">
-      <div class="step-label">Step 4 — Final tally table</div>
-      <div class="bar" style="margin-top:8px">
-        <button class="btn-a" id="addRowBtn">+ Add row</button>
-        <button class="btn-s" id="rebuildBtn">Rebuild cumulative</button>
-        <button class="btn-g" id="validateBtn">Validate tally</button>
-      </div>
-      <div class="pills" id="tallyStatus" style="margin-top:8px"><div class="pill">No validation run yet</div></div>
+    <div class="bar" style="margin-top:6px">
+      <button class="btn-a" id="ocrRunBtn" disabled>Read tally (capture image first)</button>
+    </div>
+    <div id="ocrProgressWrap" class="hidden" style="margin-top:10px">
+      <div class="ocr-prog-label" id="ocrProgLabel">Initializing…</div>
+      <div class="ocr-prog-bar-bg"><div class="ocr-prog-bar" id="ocrProgBar" style="width:0%"></div></div>
+    </div>
+    <div id="ocrReviewWrap" class="hidden" style="margin-top:14px">
+      <div class="step-label">Review OCR results</div>
+      <div class="pills" id="ocrReviewStatus"></div>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Joint #</th>
-              <th>Length (ft)</th>
-              <th>Cumulative (ft)</th>
-              <th>Pipe family</th>
-              <th>Grade</th>
-              <th>Notes</th>
-              <th>Del</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
+        <table id="ocrReviewTable">
+          <thead><tr>
+            <th>Joint #</th><th>Length (ft)</th><th>Cumulative (ft)</th><th>Confidence</th><th>Accept</th>
+          </tr></thead>
+          <tbody id="ocrReviewBody"></tbody>
         </table>
       </div>
+      <div class="bar">
+        <button class="btn-a" id="ocrAcceptAllBtn">Accept all rows</button>
+        <button class="btn-s" id="ocrAcceptCheckedBtn">Accept checked only</button>
+        <button class="btn-g" id="ocrClearBtn">Clear OCR</button>
+      </div>
+    </div>
+    <div id="ocrMsg" style="font-size:13px;color:var(--muted);margin-top:8px;display:none"></div>
+
+    <div class="divider"></div>
+
+    <!-- TALLY TABLE -->
+    <div class="step-label">Tally table</div>
+    <div class="bar" style="margin-top:6px">
+      <button class="btn-a" id="addRowBtn">+ Add row</button>
+      <button class="btn-s" id="rebuildBtn">Rebuild cumulative</button>
+      <button class="btn-g" id="validateBtn">Validate</button>
+    </div>
+    <div class="pills" id="tallyStatus"><div class="pill">No rows yet</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:70px">Joint #</th>
+          <th style="width:130px">Length (ft)</th>
+          <th style="width:150px">Cumulative (ft)</th>
+          <th>Notes</th>
+          <th style="width:50px">Del</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot>
+          <tr>
+            <td id="footJoints">0 joints</td>
+            <td id="footTotal">0.00 ft</td>
+            <td id="footCum">—</td>
+            <td colspan="2" style="color:var(--muted);font-size:12px">Total depth at final joint</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- CLEAR SECTION -->
+    <div class="clear-section">
+      <div class="cs-title">Clear tally</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Use <strong>Clear rows</strong> to start a new string section on the same well. Use <strong>New well</strong> to reset everything — job header, pipe selection, all rows, and calculations.</div>
+      <div class="bar" style="margin-top:0">
+        <button class="btn-warn" id="clearTallyBtn">Clear rows (new section)</button>
+        <button class="btn-bad" id="clearAllBtn">New well (reset all)</button>
+      </div>
     </div>
   </div>
 
-  <!-- ========== RESULTS ========== -->
+  <!-- SUMMARY -->
   <div class="panel hidden" id="pres">
     <div class="ph2">Combined wellbore summary</div>
-    <div class="psub">Press Run All to compute every calculation from current inputs on all tabs. Full circulation = string volume + annular volume. Use this screen for pre-job planning or an office record before filing the tally.</div>
+    <div class="psub">Press Run All to compute all calculations from current inputs across all tabs.</div>
     <div class="bar"><button class="btn-a" id="runAllInner">Run All</button></div>
     <div class="g4">
-      <div class="result"><div class="rl">Tally depth</div><div class="rv" id="rrDepth">— ft</div></div>
-      <div class="result"><div class="rl">Pipe ID</div><div class="rv" id="rrId">— in</div></div>
-      <div class="result"><div class="rl">Wall</div><div class="rv" id="rrWall">— in</div></div>
-      <div class="result"><div class="rl">Capacity</div><div class="rv" id="rrCap">— bbl/ft</div></div>
-      <div class="result"><div class="rl">String vol</div><div class="rv" id="rrStr">— bbl</div></div>
-      <div class="result"><div class="rl">Displacement</div><div class="rv" id="rrDisp">— bbl/ft</div></div>
-      <div class="result"><div class="rl">Ann capacity</div><div class="rv" id="rrAnn">— bbl/ft</div></div>
-      <div class="result"><div class="rl">Ann volume</div><div class="rv" id="rrAnnV">— bbl</div></div>
-      <div class="result"><div class="rl">Full circulation</div><div class="rv" id="rrCirc">— bbl</div></div>
-      <div class="result"><div class="rl">Hydrostatic</div><div class="rv" id="rrHyd">— psi</div></div>
-      <div class="result"><div class="rl">Tally joints</div><div class="rv" id="rrJoints">0</div></div>
-      <div class="result"><div class="rl">Pipe OD</div><div class="rv" id="rrOd">— in</div></div>
+      <div class="result"><div class="rl">Tally depth</div><div class="rv" id="rrDepth">—</div></div>
+      <div class="result"><div class="rl">Total joints</div><div class="rv" id="rrJoints">0</div></div>
+      <div class="result"><div class="rl">Pipe OD</div><div class="rv" id="rrOd">—</div></div>
+      <div class="result"><div class="rl">Pipe ID</div><div class="rv" id="rrId">—</div></div>
+      <div class="result"><div class="rl">Wall</div><div class="rv" id="rrWall">—</div></div>
+      <div class="result"><div class="rl">Capacity</div><div class="rv" id="rrCap">—</div></div>
+      <div class="result"><div class="rl">String vol</div><div class="rv" id="rrStr">—</div></div>
+      <div class="result"><div class="rl">Displacement</div><div class="rv" id="rrDisp">—</div></div>
+      <div class="result"><div class="rl">Ann capacity</div><div class="rv" id="rrAnn">—</div></div>
+      <div class="result"><div class="rl">Ann volume</div><div class="rv" id="rrAnnV">—</div></div>
+      <div class="result"><div class="rl">Full circulation</div><div class="rv" id="rrCirc">—</div></div>
+      <div class="result"><div class="rl">Hydrostatic</div><div class="rv" id="rrHyd">—</div></div>
     </div>
-    <div class="card">
-      <h3>Formula reference</h3>
-      <p>
-        Capacity (bbl/ft) = ID² ÷ 1029.4&nbsp;&nbsp;|&nbsp;&nbsp;
-        Displacement (bbl/ft) = (OD² − ID²) ÷ 1029.4&nbsp;&nbsp;|&nbsp;&nbsp;
-        Annular capacity (bbl/ft) = (D_outer² − D_pipe_OD²) ÷ 1029.4&nbsp;&nbsp;|&nbsp;&nbsp;
-        Full circulation (bbl) = string volume + annular volume&nbsp;&nbsp;|&nbsp;&nbsp;
-        Hydrostatic (psi) = 0.052 × MW (ppg) × TVD (ft)&nbsp;&nbsp;|&nbsp;&nbsp;
-        Conversion: 1 bbl = 42 gal = 5.6146 ft³
-      </p>
+    <div class="card"><h3>Formulas</h3>
+      <p>Capacity = ID² ÷ 1029.4 bbl/ft &nbsp;|&nbsp; Displacement = (OD²−ID²) ÷ 1029.4 bbl/ft &nbsp;|&nbsp; Ann = (D_outer²−OD²) ÷ 1029.4 bbl/ft &nbsp;|&nbsp; Hydrostatic = 0.052 × MW × TVD psi</p>
     </div>
-  </div>
-
-  <!-- STICKY BAR -->
-  <div class="sticky-bar">
-    <button class="btn-g" id="nextBtn">Next →</button>
-    <button class="btn-a" id="runAllBtn">Run All</button>
   </div>
 
 </div>
-
 <script>
 // ================================================================
-// OCTG CATALOG — API 5CT (tubing + casing), API 5DP (drill pipe),
-//                API SPEC 7-1 (HWDP + drill collars)
-// Fields: f=family, od, wt, id, wall, drift, collapse, burst, tension, grades
+// OCTG TUBULAR DATABASE — API 5CT / 5DP / Spec 7-1
+// f = family, od = OD inches, wt = weight lb/ft
+// id = ID inches, wall = wall thickness inches, drift = drift inches
+// collapse / burst / tension in psi / psi / lb (representative typical values)
+// grades = common grades for that size-weight combination
 // ================================================================
 const DB=[
-// ===== TUBING (API 5CT) =====
-// 1.050"
-{f:'Tubing',od:1.050,wt:1.14,id:0.824,wall:0.113,drift:0.730,collapse:8940,burst:6990,tension:25200,grades:'H40, J55'},
-{f:'Tubing',od:1.050,wt:1.48,id:0.742,wall:0.154,drift:0.648,collapse:12140,burst:9540,tension:34100,grades:'H40, J55, N80'},
-// 1.315"
-{f:'Tubing',od:1.315,wt:1.72,id:1.049,wall:0.133,drift:0.955,collapse:7320,burst:6210,tension:38800,grades:'H40, J55'},
-{f:'Tubing',od:1.315,wt:2.09,id:0.957,wall:0.179,drift:0.863,collapse:12360,burst:8360,tension:51800,grades:'J55, N80'},
-// 1.660"
-{f:'Tubing',od:1.660,wt:2.40,id:1.380,wall:0.140,drift:1.286,collapse:6200,burst:5200,tension:57000,grades:'H40, J55'},
-{f:'Tubing',od:1.660,wt:3.03,id:1.278,wall:0.191,drift:1.184,collapse:12350,burst:7100,tension:77200,grades:'J55, N80'},
-// 1.900"
-{f:'Tubing',od:1.900,wt:2.75,id:1.610,wall:0.145,drift:1.516,collapse:5550,burst:4640,tension:68600,grades:'H40, J55'},
-{f:'Tubing',od:1.900,wt:3.65,id:1.500,wall:0.200,drift:1.406,collapse:10580,burst:6400,tension:93900,grades:'J55, N80'},
-// 2-3/8"
-{f:'Tubing',od:2.375,wt:4.00,id:1.995,wall:0.190,drift:1.901,collapse:5840,burst:4860,tension:117100,grades:'H40, J55'},
-{f:'Tubing',od:2.375,wt:4.70,id:1.939,wall:0.218,drift:1.845,collapse:7680,burst:5580,tension:134100,grades:'J55, N80, L80'},
-{f:'Tubing',od:2.375,wt:5.80,id:1.867,wall:0.254,drift:1.773,collapse:10800,burst:6500,tension:155200,grades:'N80, L80, P110'},
-{f:'Tubing',od:2.375,wt:6.60,id:1.815,wall:0.280,drift:1.721,collapse:13240,burst:7160,tension:170000,grades:'N80, L80, P110'},
-// 2-7/8"
-{f:'Tubing',od:2.875,wt:4.00,id:2.441,wall:0.217,drift:2.347,collapse:3230,burst:4260,tension:133800,grades:'H40, J55'},
-{f:'Tubing',od:2.875,wt:6.50,id:2.441,wall:0.217,drift:2.347,collapse:8190,burst:6960,tension:171800,grades:'J55, N80, L80'},
-{f:'Tubing',od:2.875,wt:7.90,id:2.323,wall:0.276,drift:2.229,collapse:12540,burst:8860,tension:214700,grades:'N80, L80, P110'},
-{f:'Tubing',od:2.875,wt:8.70,id:2.259,wall:0.308,drift:2.165,collapse:14700,burst:9890,tension:237700,grades:'N80, L80, P110'},
-{f:'Tubing',od:2.875,wt:9.40,id:2.205,wall:0.335,drift:2.111,collapse:16760,burst:10740,tension:256700,grades:'P110'},
-// 3-1/2"
-{f:'Tubing',od:3.500,wt:7.70,id:2.992,wall:0.254,drift:2.867,collapse:6180,burst:6710,tension:233700,grades:'H40, J55'},
-{f:'Tubing',od:3.500,wt:9.20,id:2.922,wall:0.289,drift:2.797,collapse:8430,burst:7630,tension:267900,grades:'J55, N80'},
-{f:'Tubing',od:3.500,wt:10.20,id:2.867,wall:0.317,drift:2.742,collapse:10180,burst:8370,tension:294300,grades:'N80, L80'},
-{f:'Tubing',od:3.500,wt:12.70,id:2.750,wall:0.375,drift:2.625,collapse:14870,burst:9900,tension:344200,grades:'N80, L80, P110'},
-// 4"
-{f:'Tubing',od:4.000,wt:9.50,id:3.476,wall:0.262,drift:3.351,collapse:5780,burst:6500,tension:306000,grades:'J55, N80'},
-{f:'Tubing',od:4.000,wt:11.00,id:3.428,wall:0.286,drift:3.303,collapse:7440,burst:7100,tension:347000,grades:'N80, L80'},
-// 4-1/2"
-{f:'Tubing',od:4.500,wt:12.60,id:3.958,wall:0.271,drift:3.833,collapse:5150,burst:6000,tension:389000,grades:'J55, N80'},
-{f:'Tubing',od:4.500,wt:12.75,id:3.958,wall:0.271,drift:3.833,collapse:5990,burst:7240,tension:389000,grades:'N80, L80'},
+/* ---- TUBING  API 5CT ---- */
+/* 1.050" EUE/NUE */
+{f:"Tubing",od:1.050,wt:1.14,id:0.824,wall:0.113,drift:0.730,collapse:8100,burst:6210,tension:26600,grades:"H40,J55"},
+{f:"Tubing",od:1.050,wt:1.20,id:0.742,wall:0.154,drift:0.648,collapse:13800,burst:8410,tension:34200,grades:"H40,J55,N80"},
+/* 1.315" */
+{f:"Tubing",od:1.315,wt:1.70,id:1.049,wall:0.133,drift:0.955,collapse:6950,burst:5380,tension:36900,grades:"H40,J55"},
+{f:"Tubing",od:1.315,wt:1.80,id:1.049,wall:0.133,drift:0.955,collapse:7250,burst:5600,tension:40200,grades:"H40,J55,N80"},
+/* 1.660" */
+{f:"Tubing",od:1.660,wt:2.10,id:1.380,wall:0.140,drift:1.286,collapse:5720,burst:4660,tension:47700,grades:"H40,J55"},
+{f:"Tubing",od:1.660,wt:2.30,id:1.380,wall:0.140,drift:1.286,collapse:6000,burst:4870,tension:50600,grades:"H40,J55,N80"},
+/* 1.900" */
+{f:"Tubing",od:1.900,wt:2.40,id:1.610,wall:0.145,drift:1.516,collapse:5580,burst:4010,tension:54800,grades:"H40,J55"},
+{f:"Tubing",od:1.900,wt:2.75,id:1.610,wall:0.145,drift:1.516,collapse:5870,burst:4220,tension:57700,grades:"H40,J55,N80"},
+/* 2-3/8" — most common tubing */
+{f:"Tubing",od:2.375,wt:4.00,id:1.995,wall:0.190,drift:1.901,collapse:6580,burst:5180,tension:79900,grades:"H40,J55"},
+{f:"Tubing",od:2.375,wt:4.60,id:1.995,wall:0.190,drift:1.901,collapse:7260,burst:5720,tension:87300,grades:"H40,J55,N80,L80,C90,T95,P110"},
+{f:"Tubing",od:2.375,wt:5.80,id:1.867,wall:0.254,drift:1.773,collapse:13380,burst:8370,tension:111000,grades:"J55,N80,L80,P110"},
+{f:"Tubing",od:2.375,wt:6.60,id:1.751,wall:0.312,drift:1.657,collapse:19530,burst:9830,tension:131400,grades:"N80,L80,P110"},
+/* 2-7/8" — most common production tubing */
+{f:"Tubing",od:2.875,wt:6.40,id:2.441,wall:0.217,drift:2.347,collapse:8070,burst:5560,tension:106000,grades:"H40,J55"},
+{f:"Tubing",od:2.875,wt:7.90,id:2.323,wall:0.276,drift:2.229,collapse:13060,burst:7610,tension:130700,grades:"J55,N80,L80,C90,T95,P110"},
+{f:"Tubing",od:2.875,wt:8.70,id:2.259,wall:0.308,drift:2.165,collapse:16680,burst:8600,tension:145000,grades:"N80,L80,P110"},
+{f:"Tubing",od:2.875,wt:9.35,id:2.195,wall:0.340,drift:2.101,collapse:20520,burst:9330,tension:157600,grades:"N80,L80,P110"},
+/* 3-1/2" */
+{f:"Tubing",od:3.500,wt:7.70,id:3.068,wall:0.216,drift:2.943,collapse:5390,burst:5050,tension:114900,grades:"H40,J55"},
+{f:"Tubing",od:3.500,wt:9.20,id:2.992,wall:0.254,drift:2.867,collapse:7500,burst:6060,tension:136200,grades:"J55,N80,L80"},
+{f:"Tubing",od:3.500,wt:10.20,id:2.922,wall:0.289,drift:2.797,collapse:10260,burst:7070,tension:153600,grades:"N80,L80,P110"},
+{f:"Tubing",od:3.500,wt:12.70,id:2.750,wall:0.375,drift:2.625,collapse:18230,burst:8480,tension:189800,grades:"N80,L80,P110"},
+{f:"Tubing",od:3.500,wt:14.30,id:2.602,wall:0.449,drift:2.477,collapse:25750,burst:10720,tension:220900,grades:"N80,L80,P110"},
+/* 4" */
+{f:"Tubing",od:4.000,wt:9.50,id:3.548,wall:0.226,drift:3.423,collapse:4600,burst:4810,tension:143800,grades:"J55,N80,L80"},
+{f:"Tubing",od:4.000,wt:11.00,id:3.476,wall:0.262,drift:3.351,collapse:5910,burst:5620,tension:167700,grades:"J55,N80,L80,P110"},
+{f:"Tubing",od:4.000,wt:14.30,id:3.282,wall:0.359,drift:3.157,collapse:12450,burst:7290,tension:219700,grades:"N80,L80,P110"},
+/* 4-1/2" */
+{f:"Tubing",od:4.500,wt:9.50,id:4.090,wall:0.205,drift:3.965,collapse:3310,burst:3800,tension:148900,grades:"J55,L80"},
+{f:"Tubing",od:4.500,wt:12.60,id:3.958,wall:0.271,drift:3.833,collapse:5820,burst:5260,tension:199200,grades:"J55,N80,L80"},
+{f:"Tubing",od:4.500,wt:15.10,id:3.826,wall:0.337,drift:3.701,collapse:9250,burst:6200,tension:239500,grades:"N80,L80,P110"},
+{f:"Tubing",od:4.500,wt:18.50,id:3.640,wall:0.430,drift:3.515,collapse:15470,burst:7470,tension:288700,grades:"N80,L80,P110"},
 
-// ===== DRILL PIPE (API 5DP) =====
-{f:'Drill Pipe',od:2.375,wt:6.65,id:1.995,wall:0.190,drift:1.875,collapse:12540,burst:14750,tension:205700,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:2.875,wt:10.40,id:2.151,wall:0.362,drift:2.031,collapse:24200,burst:21000,tension:257200,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:3.500,wt:13.30,id:2.764,wall:0.368,drift:2.602,collapse:14290,burst:13450,tension:337000,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:3.500,wt:15.50,id:2.602,wall:0.449,drift:2.440,collapse:24840,burst:16410,tension:403000,grades:'X95, G105, S135'},
-{f:'Drill Pipe',od:4.000,wt:14.00,id:3.340,wall:0.330,drift:3.178,collapse:10430,burst:10430,tension:354000,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:4.500,wt:16.60,id:3.826,wall:0.337,drift:3.640,collapse:9500,burst:9500,tension:514000,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:4.500,wt:20.00,id:3.640,wall:0.430,drift:3.478,collapse:15360,burst:12130,tension:638000,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:5.000,wt:19.50,id:4.276,wall:0.362,drift:4.114,collapse:9700,burst:9180,tension:658000,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:5.000,wt:25.60,id:4.000,wall:0.500,drift:3.838,collapse:18940,burst:12700,tension:868000,grades:'G105, S135'},
-{f:'Drill Pipe',od:5.500,wt:21.90,id:4.778,wall:0.361,drift:4.616,collapse:8750,burst:8350,tension:759000,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:5.500,wt:24.70,id:4.670,wall:0.415,drift:4.508,collapse:12200,burst:9600,tension:876000,grades:'G105, S135'},
-{f:'Drill Pipe',od:6.625,wt:25.20,id:5.965,wall:0.330,drift:5.803,collapse:6330,burst:6330,tension:934000,grades:'E75, X95, G105, S135'},
-{f:'Drill Pipe',od:6.625,wt:27.70,id:5.901,wall:0.362,drift:5.739,collapse:7600,burst:6940,tension:1020000,grades:'X95, G105, S135'},
+/* ---- DRILL PIPE  API 5DP / RP7G ---- */
+/* 2-3/8" DP */
+{f:"Drill Pipe",od:2.375,wt:4.85,id:1.995,wall:0.190,drift:1.901,collapse:9840,burst:9650,tension:115000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:2.375,wt:6.65,id:1.815,wall:0.280,drift:1.715,collapse:20330,burst:12680,tension:136000,grades:"E75,X95,G105,S135"},
+/* 2-7/8" DP */
+{f:"Drill Pipe",od:2.875,wt:6.85,id:2.441,wall:0.217,drift:2.341,collapse:8210,burst:8280,tension:148000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:2.875,wt:10.40,id:2.151,wall:0.362,drift:2.051,collapse:25880,burst:12920,tension:196000,grades:"E75,X95,G105,S135"},
+/* 3-1/2" DP */
+{f:"Drill Pipe",od:3.500,wt:9.50,id:2.992,wall:0.254,drift:2.867,collapse:8980,burst:8040,tension:215000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:3.500,wt:13.30,id:2.764,wall:0.368,drift:2.639,collapse:16130,burst:9240,tension:268000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:3.500,wt:15.50,id:2.602,wall:0.449,drift:2.477,collapse:23540,burst:11360,tension:320000,grades:"E75,X95,G105,S135"},
+/* 4" DP */
+{f:"Drill Pipe",od:4.000,wt:11.85,id:3.340,wall:0.330,drift:3.215,collapse:11550,burst:8690,tension:276000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:4.000,wt:14.00,id:3.152,wall:0.424,drift:3.027,collapse:18380,burst:9440,tension:318000,grades:"E75,X95,G105,S135"},
+/* 4-1/2" DP */
+{f:"Drill Pipe",od:4.500,wt:13.75,id:3.958,wall:0.271,drift:3.833,collapse:7750,burst:7640,tension:329000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:4.500,wt:16.60,id:3.826,wall:0.337,drift:3.701,collapse:9800,burst:8890,tension:378000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:4.500,wt:20.00,id:3.640,wall:0.430,drift:3.515,collapse:14300,burst:11470,tension:454000,grades:"E75,X95,G105,S135"},
+/* 5" DP */
+{f:"Drill Pipe",od:5.000,wt:16.25,id:4.408,wall:0.296,drift:4.283,collapse:7090,burst:7680,tension:399000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:5.000,wt:19.50,id:4.276,wall:0.362,drift:4.151,collapse:10680,burst:9180,tension:475000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:5.000,wt:25.60,id:4.000,wall:0.500,drift:3.875,collapse:19860,burst:11390,tension:594000,grades:"E75,X95,G105,S135"},
+/* 5-1/2" DP */
+{f:"Drill Pipe",od:5.500,wt:19.20,id:4.892,wall:0.304,drift:4.767,collapse:5700,burst:7130,tension:462000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:5.500,wt:21.90,id:4.778,wall:0.361,drift:4.653,collapse:8170,burst:8150,tension:524000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:5.500,wt:24.70,id:4.670,wall:0.415,drift:4.545,collapse:10450,burst:8480,tension:591000,grades:"E75,X95,G105,S135"},
+/* 5-7/8" DP */
+{f:"Drill Pipe",od:5.875,wt:23.40,id:5.153,wall:0.361,drift:5.028,collapse:7050,burst:7760,tension:566000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:5.875,wt:26.30,id:5.021,wall:0.427,drift:4.896,collapse:9560,burst:8550,tension:638000,grades:"E75,X95,G105,S135"},
+/* 6-5/8" DP */
+{f:"Drill Pipe",od:6.625,wt:25.20,id:6.065,wall:0.280,drift:5.940,collapse:4010,burst:7140,tension:628000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:6.625,wt:27.70,id:5.965,wall:0.330,drift:5.840,collapse:5160,burst:8520,tension:698000,grades:"E75,X95,G105,S135"},
+{f:"Drill Pipe",od:6.625,wt:32.70,id:5.761,wall:0.432,drift:5.636,collapse:9070,burst:9580,tension:798000,grades:"E75,X95,G105,S135"},
 
-// ===== HWDP (API SPEC 7-1) =====
-{f:'HWDP',od:3.500,wt:25.30,id:2.063,wall:0.719,drift:1.900,collapse:0,burst:0,tension:500000,grades:'Alloy steel / S135'},
-{f:'HWDP',od:4.000,wt:29.70,id:2.563,wall:0.719,drift:2.400,collapse:0,burst:0,tension:600000,grades:'Alloy steel / S135'},
-{f:'HWDP',od:4.500,wt:41.00,id:2.750,wall:0.875,drift:2.500,collapse:0,burst:0,tension:700000,grades:'Alloy steel / S135'},
-{f:'HWDP',od:5.000,wt:49.30,id:3.000,wall:1.000,drift:2.750,collapse:0,burst:0,tension:800000,grades:'Alloy steel / S135'},
-{f:'HWDP',od:5.000,wt:50.00,id:3.000,wall:1.000,drift:2.750,collapse:0,burst:0,tension:810000,grades:'Alloy steel / S135'},
-{f:'HWDP',od:5.500,wt:49.30,id:3.000,wall:1.250,drift:2.750,collapse:0,burst:0,tension:830000,grades:'Alloy steel / S135'},
-{f:'HWDP',od:6.625,wt:70.00,id:3.000,wall:1.813,drift:2.750,collapse:0,burst:0,tension:1100000,grades:'Alloy steel / S135'},
+/* ---- HWDP ---- */
+{f:"HWDP",od:3.500,wt:25.00,id:2.063,wall:0.719,drift:1.875,collapse:99999,burst:25000,tension:250000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:4.000,wt:35.00,id:2.563,wall:0.719,drift:2.375,collapse:99999,burst:28000,tension:300000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:4.500,wt:41.00,id:2.563,wall:0.969,drift:2.375,collapse:99999,burst:32000,tension:380000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:4.500,wt:50.00,id:2.250,wall:1.125,drift:2.063,collapse:99999,burst:38000,tension:440000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:5.000,wt:49.30,id:3.000,wall:1.000,drift:2.813,collapse:99999,burst:35000,tension:450000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:5.000,wt:55.00,id:2.750,wall:1.125,drift:2.563,collapse:99999,burst:38000,tension:490000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:5.500,wt:55.00,id:3.500,wall:1.000,drift:3.313,collapse:99999,burst:38000,tension:520000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:5.500,wt:60.00,id:3.000,wall:1.250,drift:2.813,collapse:99999,burst:42000,tension:560000,grades:"E75,X95,G105,S135"},
+{f:"HWDP",od:6.625,wt:74.80,id:3.250,wall:1.688,drift:3.063,collapse:99999,burst:48000,tension:680000,grades:"E75,X95,G105,S135"},
 
-// ===== DRILL COLLARS (API SPEC 7-1) =====
-{f:'Drill Collar',od:4.750,wt:45.00,id:2.250,wall:1.250,drift:2.000,collapse:0,burst:0,tension:750000,grades:'Alloy steel'},
-{f:'Drill Collar',od:5.000,wt:54.00,id:2.250,wall:1.375,drift:2.000,collapse:0,burst:0,tension:820000,grades:'Alloy steel'},
-{f:'Drill Collar',od:6.000,wt:73.00,id:2.813,wall:1.594,drift:2.563,collapse:0,burst:0,tension:1000000,grades:'Alloy steel'},
-{f:'Drill Collar',od:6.250,wt:83.00,id:2.813,wall:1.719,drift:2.563,collapse:0,burst:0,tension:1050000,grades:'Alloy steel'},
-{f:'Drill Collar',od:6.500,wt:91.00,id:2.813,wall:1.844,drift:2.563,collapse:0,burst:0,tension:1100000,grades:'Alloy steel'},
-{f:'Drill Collar',od:7.000,wt:110.00,id:2.813,wall:2.094,drift:2.563,collapse:0,burst:0,tension:1250000,grades:'Alloy steel'},
-{f:'Drill Collar',od:8.000,wt:147.00,id:2.813,wall:2.594,drift:2.563,collapse:0,burst:0,tension:1500000,grades:'Alloy steel'},
-{f:'Drill Collar',od:9.000,wt:189.00,id:3.000,wall:3.000,drift:2.750,collapse:0,burst:0,tension:1850000,grades:'Alloy steel'},
-{f:'Drill Collar',od:9.500,wt:211.00,id:3.000,wall:3.250,drift:2.750,collapse:0,burst:0,tension:2050000,grades:'Alloy steel'},
+/* ---- DRILL COLLARS  API Spec 7-1 ---- */
+{f:"Drill Collar",od:4.750,wt:66.00,id:2.250,wall:1.250,drift:2.125,collapse:99999,burst:55000,tension:660000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:5.000,wt:73.00,id:2.250,wall:1.375,drift:2.125,collapse:99999,burst:58000,tension:690000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:5.000,wt:79.00,id:2.000,wall:1.500,drift:1.875,collapse:99999,burst:62000,tension:720000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:6.000,wt:104.00,id:2.813,wall:1.594,drift:2.688,collapse:99999,burst:68000,tension:960000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:6.250,wt:111.00,id:2.813,wall:1.719,drift:2.688,collapse:99999,burst:72000,tension:1020000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:6.500,wt:120.00,id:2.813,wall:1.844,drift:2.688,collapse:99999,burst:76000,tension:1080000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:6.750,wt:130.00,id:2.813,wall:1.969,drift:2.688,collapse:99999,burst:80000,tension:1130000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:7.000,wt:140.00,id:2.813,wall:2.094,drift:2.688,collapse:99999,burst:85000,tension:1200000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:7.250,wt:151.00,id:2.813,wall:2.219,drift:2.688,collapse:99999,burst:90000,tension:1260000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:7.500,wt:163.00,id:2.813,wall:2.344,drift:2.688,collapse:99999,burst:95000,tension:1320000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:8.000,wt:189.00,id:2.813,wall:2.594,drift:2.688,collapse:99999,burst:105000,tension:1500000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:8.250,wt:203.00,id:2.813,wall:2.719,drift:2.688,collapse:99999,burst:110000,tension:1580000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:9.000,wt:249.00,id:3.000,wall:3.000,drift:2.875,collapse:99999,burst:120000,tension:1850000,grades:"Grade 1 (API Spec 7-1)"},
+{f:"Drill Collar",od:9.500,wt:276.00,id:3.000,wall:3.250,drift:2.875,collapse:99999,burst:128000,tension:2050000,grades:"Grade 1 (API Spec 7-1)"},
 
-// ===== CASING (API 5CT) =====
-// 4-1/2"
-{f:'Casing',od:4.500,wt:9.50,id:4.090,wall:0.205,drift:3.965,collapse:3120,burst:4020,tension:184000,grades:'J55, K55'},
-{f:'Casing',od:4.500,wt:10.50,id:4.052,wall:0.224,drift:3.927,collapse:4150,burst:4400,tension:199000,grades:'J55, K55, N80'},
-{f:'Casing',od:4.500,wt:11.60,id:4.000,wall:0.250,drift:3.875,collapse:5350,burst:4910,tension:225000,grades:'N80, L80, P110'},
-{f:'Casing',od:4.500,wt:13.50,id:3.920,wall:0.290,drift:3.795,collapse:7780,burst:5700,tension:271000,grades:'N80, L80, P110'},
-{f:'Casing',od:4.500,wt:15.10,id:3.826,wall:0.337,drift:3.701,collapse:10500,burst:6620,tension:322000,grades:'N80, P110, C110'},
-// 5"
-{f:'Casing',od:5.000,wt:11.50,id:4.560,wall:0.220,drift:4.435,collapse:2490,burst:3260,tension:224000,grades:'J55, K55'},
-{f:'Casing',od:5.000,wt:13.00,id:4.494,wall:0.253,drift:4.369,collapse:3520,burst:3750,tension:260000,grades:'J55, N80, L80'},
-{f:'Casing',od:5.000,wt:15.00,id:4.408,wall:0.296,drift:4.283,collapse:5430,burst:4390,tension:302000,grades:'N80, L80, P110'},
-{f:'Casing',od:5.000,wt:18.00,id:4.276,wall:0.362,drift:4.151,collapse:8810,burst:5370,tension:375000,grades:'N80, P110, C110'},
-// 5-1/2"
-{f:'Casing',od:5.500,wt:14.00,id:5.012,wall:0.244,drift:4.887,collapse:2780,burst:3010,tension:271000,grades:'J55, K55'},
-{f:'Casing',od:5.500,wt:15.50,id:4.950,wall:0.275,drift:4.825,collapse:3750,burst:3390,tension:306000,grades:'J55, N80'},
-{f:'Casing',od:5.500,wt:17.00,id:4.892,wall:0.304,drift:4.767,collapse:4680,burst:3750,tension:339000,grades:'N80, L80, P110'},
-{f:'Casing',od:5.500,wt:20.00,id:4.778,wall:0.361,drift:4.653,collapse:7030,burst:4440,tension:403000,grades:'N80, L80, P110, C110'},
-{f:'Casing',od:5.500,wt:23.00,id:4.670,wall:0.415,drift:4.545,collapse:9490,burst:5110,tension:463000,grades:'P110, C110, Q125'},
-// 6-5/8"
-{f:'Casing',od:6.625,wt:17.00,id:6.135,wall:0.245,drift:6.010,collapse:1760,burst:2690,tension:347000,grades:'J55, K55'},
-{f:'Casing',od:6.625,wt:20.00,id:6.049,wall:0.288,drift:5.924,collapse:2660,burst:3160,tension:408000,grades:'J55, N80'},
-{f:'Casing',od:6.625,wt:24.00,id:5.921,wall:0.352,drift:5.796,collapse:4310,burst:3870,tension:499000,grades:'N80, L80, P110'},
-{f:'Casing',od:6.625,wt:28.00,id:5.791,wall:0.417,drift:5.666,collapse:6340,burst:4580,tension:581000,grades:'N80, L80, P110'},
-// 7"
-{f:'Casing',od:7.000,wt:17.00,id:6.538,wall:0.231,drift:6.413,collapse:1590,burst:2690,tension:344000,grades:'J55, K55'},
-{f:'Casing',od:7.000,wt:20.00,id:6.456,wall:0.272,drift:6.331,collapse:2270,burst:3160,tension:408000,grades:'J55, N80, L80'},
-{f:'Casing',od:7.000,wt:23.00,id:6.366,wall:0.317,drift:6.241,collapse:3340,burst:3680,tension:476000,grades:'N80, L80, P110'},
-{f:'Casing',od:7.000,wt:26.00,id:6.276,wall:0.362,drift:6.151,collapse:4630,burst:4200,tension:543000,grades:'N80, L80, P110'},
-{f:'Casing',od:7.000,wt:29.00,id:6.184,wall:0.408,drift:6.059,collapse:5980,burst:4730,tension:614000,grades:'N80, P110, T95, C110'},
-{f:'Casing',od:7.000,wt:32.00,id:6.094,wall:0.453,drift:5.969,collapse:7390,burst:5250,tension:679000,grades:'P110, T95, C110, Q125'},
-{f:'Casing',od:7.000,wt:35.00,id:6.004,wall:0.498,drift:5.879,collapse:8960,burst:5770,tension:748000,grades:'P110, C110, Q125'},
-// 7-5/8"
-{f:'Casing',od:7.625,wt:24.00,id:7.025,wall:0.300,drift:6.900,collapse:2350,burst:3400,tension:466000,grades:'J55, N80'},
-{f:'Casing',od:7.625,wt:26.40,id:6.969,wall:0.328,drift:6.844,collapse:3030,burst:3720,tension:511000,grades:'N80, L80'},
-{f:'Casing',od:7.625,wt:29.70,id:6.875,wall:0.375,drift:6.750,collapse:4160,burst:4250,tension:585000,grades:'N80, L80, P110'},
-{f:'Casing',od:7.625,wt:33.70,id:6.765,wall:0.430,drift:6.640,collapse:5800,burst:4870,tension:669000,grades:'N80, P110, T95'},
-{f:'Casing',od:7.625,wt:39.00,id:6.625,wall:0.500,drift:6.500,collapse:7960,burst:5660,tension:776000,grades:'P110, C110, Q125'},
-// 8-5/8"
-{f:'Casing',od:8.625,wt:28.00,id:8.017,wall:0.304,drift:7.892,collapse:1900,burst:3030,tension:540000,grades:'J55, K55'},
-{f:'Casing',od:8.625,wt:32.00,id:7.921,wall:0.352,drift:7.796,collapse:2680,burst:3510,tension:626000,grades:'J55, N80'},
-{f:'Casing',od:8.625,wt:36.00,id:7.825,wall:0.400,drift:7.700,collapse:3540,burst:3990,tension:710000,grades:'N80, L80, P110'},
-{f:'Casing',od:8.625,wt:40.00,id:7.725,wall:0.450,drift:7.600,collapse:4750,burst:4490,tension:799000,grades:'N80, L80, P110'},
-{f:'Casing',od:8.625,wt:44.00,id:7.625,wall:0.500,drift:7.500,collapse:6010,burst:4990,tension:888000,grades:'N80, P110, C110'},
-// 9-5/8"
-{f:'Casing',od:9.625,wt:32.30,id:9.001,wall:0.312,drift:8.845,collapse:1500,burst:2800,tension:599000,grades:'J55, K55'},
-{f:'Casing',od:9.625,wt:36.00,id:8.921,wall:0.352,drift:8.765,collapse:2020,burst:3140,tension:677000,grades:'J55, N80, L80'},
-{f:'Casing',od:9.625,wt:40.00,id:8.835,wall:0.395,drift:8.679,collapse:2690,burst:3530,tension:762000,grades:'N80, L80, P110'},
-{f:'Casing',od:9.625,wt:43.50,id:8.755,wall:0.435,drift:8.599,collapse:3290,burst:3880,tension:841000,grades:'N80, L80, P110'},
-{f:'Casing',od:9.625,wt:47.00,id:8.681,wall:0.472,drift:8.525,collapse:3770,burst:4210,tension:912000,grades:'N80, P110, T95, C110'},
-{f:'Casing',od:9.625,wt:53.50,id:8.535,wall:0.545,drift:8.379,collapse:5150,burst:4860,tension:1052000,grades:'P110, T95, C110, Q125'},
-// 10-3/4"
-{f:'Casing',od:10.750,wt:32.75,id:10.192,wall:0.279,drift:10.036,collapse:1060,burst:2360,tension:636000,grades:'J55, K55'},
-{f:'Casing',od:10.750,wt:40.50,id:10.050,wall:0.350,drift:9.894,collapse:1810,burst:2960,tension:793000,grades:'J55, N80'},
-{f:'Casing',od:10.750,wt:45.50,id:9.950,wall:0.400,drift:9.794,collapse:2470,burst:3380,tension:897000,grades:'N80, L80, P110'},
-{f:'Casing',od:10.750,wt:51.00,id:9.850,wall:0.450,drift:9.694,collapse:3040,burst:3800,tension:1005000,grades:'N80, P110'},
-{f:'Casing',od:10.750,wt:55.50,id:9.760,wall:0.495,drift:9.604,collapse:3680,burst:4180,tension:1105000,grades:'N80, P110'},
-// 11-3/4"
-{f:'Casing',od:11.750,wt:42.00,id:11.084,wall:0.333,drift:10.928,collapse:1230,burst:2390,tension:826000,grades:'J55, K55'},
-{f:'Casing',od:11.750,wt:47.00,id:10.988,wall:0.381,drift:10.832,collapse:1700,burst:2730,tension:941000,grades:'K55, N80'},
-{f:'Casing',od:11.750,wt:54.00,id:10.880,wall:0.435,drift:10.724,collapse:2310,burst:3120,tension:1076000,grades:'N80, L80, P110'},
-{f:'Casing',od:11.750,wt:60.00,id:10.772,wall:0.489,drift:10.616,collapse:2920,burst:3510,tension:1208000,grades:'N80, P110'},
-// 13-3/8"
-{f:'Casing',od:13.375,wt:48.00,id:12.715,wall:0.330,drift:12.559,collapse:1020,burst:2270,tension:948000,grades:'J55, K55'},
-{f:'Casing',od:13.375,wt:54.50,id:12.615,wall:0.380,drift:12.459,collapse:1390,burst:2610,tension:1093000,grades:'J55, K55, N80'},
-{f:'Casing',od:13.375,wt:61.00,id:12.515,wall:0.430,drift:12.359,collapse:1760,burst:2950,tension:1232000,grades:'K55, N80, L80'},
-{f:'Casing',od:13.375,wt:68.00,id:12.415,wall:0.480,drift:12.259,collapse:2160,burst:3290,tension:1373000,grades:'N80, L80, P110'},
-{f:'Casing',od:13.375,wt:72.00,id:12.347,wall:0.514,drift:12.191,collapse:2510,burst:3520,tension:1467000,grades:'N80, P110'},
-// 16"
-{f:'Casing',od:16.000,wt:65.00,id:15.250,wall:0.375,drift:15.062,collapse:810,burst:2040,tension:1270000,grades:'J55, K55'},
-{f:'Casing',od:16.000,wt:75.00,id:15.124,wall:0.438,drift:14.936,collapse:1100,burst:2390,tension:1484000,grades:'K55, N80'},
-{f:'Casing',od:16.000,wt:84.00,id:15.010,wall:0.495,drift:14.822,collapse:1400,burst:2700,tension:1676000,grades:'K55, N80'},
-// 18-5/8"
-{f:'Casing',od:18.625,wt:87.50,id:17.755,wall:0.435,drift:17.567,collapse:660,burst:1760,tension:1710000,grades:'J55, K55'},
-// 20"
-{f:'Casing',od:20.000,wt:94.00,id:19.124,wall:0.438,drift:18.936,collapse:590,burst:1640,tension:1833000,grades:'J55, K55'},
-{f:'Casing',od:20.000,wt:106.50,id:19.000,wall:0.500,drift:18.812,collapse:770,burst:1880,tension:2100000,grades:'J55, K55'},
-{f:'Casing',od:20.000,wt:133.00,id:18.730,wall:0.635,drift:18.542,collapse:1180,burst:2380,tension:2700000,grades:'K55, N80'}
+/* ---- CASING  API 5CT ---- */
+/* 4-1/2" */
+{f:"Casing",od:4.500,wt:9.50,id:4.090,wall:0.205,drift:3.965,collapse:3310,burst:3810,tension:148900,grades:"J55,K55,N80,L80,C90,T95,P110"},
+{f:"Casing",od:4.500,wt:10.50,id:4.052,wall:0.224,drift:3.927,collapse:4010,burst:4160,tension:163200,grades:"J55,K55,N80,L80,P110"},
+{f:"Casing",od:4.500,wt:11.60,id:4.000,wall:0.250,drift:3.875,collapse:5070,burst:4640,tension:182000,grades:"J55,K55,N80,L80,C90,T95,P110"},
+{f:"Casing",od:4.500,wt:13.50,id:3.920,wall:0.290,drift:3.795,collapse:6870,burst:5380,tension:210000,grades:"N80,L80,C90,T95,P110,Q125"},
+{f:"Casing",od:4.500,wt:15.10,id:3.826,wall:0.337,drift:3.701,collapse:9700,burst:6050,tension:239500,grades:"N80,L80,C90,T95,P110,Q125"},
+{f:"Casing",od:4.500,wt:18.50,id:3.640,wall:0.430,drift:3.515,collapse:15470,burst:7470,tension:288700,grades:"N80,L80,P110,Q125"},
+
+/* 5" */
+{f:"Casing",od:5.000,wt:11.50,id:4.560,wall:0.220,drift:4.435,collapse:3670,burst:3860,tension:179000,grades:"J55,K55,N80"},
+{f:"Casing",od:5.000,wt:13.00,id:4.494,wall:0.253,drift:4.369,collapse:4700,burst:4440,tension:206000,grades:"J55,K55,N80,L80"},
+{f:"Casing",od:5.000,wt:15.00,id:4.408,wall:0.296,drift:4.283,collapse:6030,burst:5170,tension:238000,grades:"J55,N80,L80,P110"},
+{f:"Casing",od:5.000,wt:18.00,id:4.276,wall:0.362,drift:4.151,collapse:8810,burst:6330,tension:283000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:5.000,wt:21.40,id:4.126,wall:0.437,drift:4.001,collapse:12860,burst:7400,tension:330000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:5.000,wt:23.20,id:4.044,wall:0.478,drift:3.919,collapse:15180,burst:7690,tension:356000,grades:"N80,L80,P110,Q125"},
+
+/* 5-1/2" */
+{f:"Casing",od:5.500,wt:13.00,id:5.044,wall:0.228,drift:4.919,collapse:3340,burst:3670,tension:204000,grades:"J55,K55,N80"},
+{f:"Casing",od:5.500,wt:15.50,id:4.950,wall:0.275,drift:4.825,collapse:4530,burst:4440,tension:246000,grades:"J55,N80,L80"},
+{f:"Casing",od:5.500,wt:17.00,id:4.892,wall:0.304,drift:4.767,collapse:5340,burst:4840,tension:274000,grades:"J55,N80,L80,P110"},
+{f:"Casing",od:5.500,wt:20.00,id:4.778,wall:0.361,drift:4.653,collapse:7650,burst:5700,tension:320000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:5.500,wt:23.00,id:4.670,wall:0.415,drift:4.545,collapse:9860,burst:6050,tension:361000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:5.500,wt:26.80,id:4.548,wall:0.476,drift:4.423,collapse:13400,burst:6930,tension:415000,grades:"N80,L80,P110,Q125"},
+
+/* 6-5/8" */
+{f:"Casing",od:6.625,wt:17.00,id:6.135,wall:0.245,drift:6.010,collapse:2890,burst:3510,tension:262000,grades:"J55,K55,N80"},
+{f:"Casing",od:6.625,wt:20.00,id:6.049,wall:0.288,drift:5.924,collapse:3730,burst:4130,tension:310000,grades:"J55,N80,L80"},
+{f:"Casing",od:6.625,wt:24.00,id:5.921,wall:0.352,drift:5.796,collapse:5400,burst:4980,tension:375000,grades:"N80,L80,P110"},
+{f:"Casing",od:6.625,wt:28.00,id:5.791,wall:0.417,drift:5.666,collapse:7710,burst:5620,tension:434000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:6.625,wt:32.00,id:5.675,wall:0.475,drift:5.550,collapse:9990,burst:6430,tension:491000,grades:"N80,L80,P110,Q125"},
+
+/* 7" — extremely common production casing */
+{f:"Casing",od:7.000,wt:17.00,id:6.538,wall:0.231,drift:6.413,collapse:1900,burst:3090,tension:268000,grades:"J55,K55"},
+{f:"Casing",od:7.000,wt:20.00,id:6.456,wall:0.272,drift:6.331,collapse:2610,burst:3630,tension:316000,grades:"J55,K55,N80,L80"},
+{f:"Casing",od:7.000,wt:23.00,id:6.366,wall:0.317,drift:6.241,collapse:3560,burst:4230,tension:367000,grades:"J55,K55,N80,L80"},
+{f:"Casing",od:7.000,wt:26.00,id:6.276,wall:0.362,drift:6.151,collapse:4640,burst:4790,tension:413000,grades:"N80,L80,P110"},
+{f:"Casing",od:7.000,wt:29.00,id:6.184,wall:0.408,drift:6.059,collapse:5910,burst:5320,tension:458000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:7.000,wt:32.00,id:6.094,wall:0.453,drift:5.969,collapse:7590,burst:5900,tension:502000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:7.000,wt:35.00,id:6.004,wall:0.498,drift:5.879,collapse:9250,burst:6360,tension:545000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:7.000,wt:38.00,id:5.920,wall:0.540,drift:5.795,collapse:11590,burst:6850,tension:588000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:7.000,wt:42.70,id:5.791,wall:0.605,drift:5.666,collapse:14670,burst:7390,tension:641000,grades:"N80,L80,P110,Q125"},
+
+/* 7-5/8" */
+{f:"Casing",od:7.625,wt:20.00,id:7.125,wall:0.250,drift:7.000,collapse:2030,burst:3130,tension:313000,grades:"J55,K55,N80"},
+{f:"Casing",od:7.625,wt:24.00,id:7.025,wall:0.300,drift:6.900,collapse:2820,burst:3740,tension:377000,grades:"J55,N80,L80"},
+{f:"Casing",od:7.625,wt:26.40,id:6.969,wall:0.328,drift:6.844,collapse:3330,burst:4100,tension:416000,grades:"N80,L80,P110"},
+{f:"Casing",od:7.625,wt:29.70,id:6.875,wall:0.375,drift:6.750,collapse:4280,burst:4590,tension:463000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:7.625,wt:33.70,id:6.765,wall:0.430,drift:6.640,collapse:5730,burst:5220,tension:521000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:7.625,wt:39.00,id:6.625,wall:0.500,drift:6.500,collapse:8050,burst:5660,tension:592000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:7.625,wt:45.30,id:6.435,wall:0.595,drift:6.310,collapse:12010,burst:6270,tension:674000,grades:"N80,L80,P110,Q125"},
+
+/* 8-5/8" */
+{f:"Casing",od:8.625,wt:24.00,id:8.097,wall:0.264,drift:7.972,collapse:2290,burst:3150,tension:383000,grades:"J55,K55,N80"},
+{f:"Casing",od:8.625,wt:28.00,id:7.997,wall:0.314,drift:7.872,collapse:3040,burst:3730,tension:447000,grades:"J55,N80,L80"},
+{f:"Casing",od:8.625,wt:32.00,id:7.921,wall:0.352,drift:7.796,collapse:3700,burst:4190,tension:503000,grades:"N80,L80,P110"},
+{f:"Casing",od:8.625,wt:36.00,id:7.825,wall:0.400,drift:7.700,collapse:4750,burst:4640,tension:558000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:8.625,wt:40.00,id:7.725,wall:0.450,drift:7.600,collapse:6110,burst:5170,tension:626000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:8.625,wt:44.00,id:7.625,wall:0.500,drift:7.500,collapse:7600,burst:5540,tension:683000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:8.625,wt:49.00,id:7.511,wall:0.557,drift:7.386,collapse:9600,burst:5860,tension:752000,grades:"N80,L80,P110,Q125"},
+
+/* 9-5/8" — most common intermediate/surface casing */
+{f:"Casing",od:9.625,wt:29.30,id:9.063,wall:0.281,drift:8.938,collapse:2040,burst:3020,tension:459000,grades:"J55,K55,N80"},
+{f:"Casing",od:9.625,wt:32.30,id:9.001,wall:0.312,drift:8.876,collapse:2450,burst:3350,tension:507000,grades:"J55,K55,N80,L80"},
+{f:"Casing",od:9.625,wt:36.00,id:8.921,wall:0.352,drift:8.796,collapse:3010,burst:3760,tension:566000,grades:"J55,N80,L80,P110"},
+{f:"Casing",od:9.625,wt:40.00,id:8.835,wall:0.395,drift:8.710,collapse:3640,burst:4210,tension:630000,grades:"N80,L80,P110"},
+{f:"Casing",od:9.625,wt:43.50,id:8.755,wall:0.435,drift:8.630,collapse:4300,burst:4590,tension:681000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:9.625,wt:47.00,id:8.681,wall:0.472,drift:8.556,collapse:5190,burst:4810,tension:729000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:9.625,wt:53.50,id:8.535,wall:0.545,drift:8.410,collapse:6950,burst:5200,tension:824000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:9.625,wt:58.40,id:8.435,wall:0.595,drift:8.310,collapse:8200,burst:5550,tension:892000,grades:"N80,L80,P110,Q125"},
+
+/* 10-3/4" */
+{f:"Casing",od:10.750,wt:32.75,id:10.192,wall:0.279,drift:10.067,collapse:1850,burst:2940,tension:528000,grades:"J55,K55,N80"},
+{f:"Casing",od:10.750,wt:40.50,id:10.050,wall:0.350,drift:9.925,collapse:2660,burst:3680,tension:659000,grades:"J55,N80,L80"},
+{f:"Casing",od:10.750,wt:45.50,id:9.950,wall:0.400,drift:9.825,collapse:3310,burst:4210,tension:747000,grades:"N80,L80,P110"},
+{f:"Casing",od:10.750,wt:51.00,id:9.850,wall:0.450,drift:9.725,collapse:4020,burst:4650,tension:829000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:10.750,wt:55.50,id:9.760,wall:0.495,drift:9.635,collapse:4690,burst:5030,tension:898000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:10.750,wt:60.70,id:9.660,wall:0.545,drift:9.535,collapse:5560,burst:5350,tension:972000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:10.750,wt:65.70,id:9.560,wall:0.595,drift:9.435,collapse:6640,burst:5620,tension:1042000,grades:"N80,L80,P110,Q125"},
+
+/* 11-3/4" */
+{f:"Casing",od:11.750,wt:38.00,id:11.150,wall:0.300,drift:11.025,collapse:1660,burst:2960,tension:596000,grades:"J55,K55,N80"},
+{f:"Casing",od:11.750,wt:42.00,id:11.084,wall:0.333,drift:10.959,collapse:1940,burst:3290,tension:660000,grades:"J55,N80,L80"},
+{f:"Casing",od:11.750,wt:47.00,id:10.984,wall:0.383,drift:10.859,collapse:2450,burst:3700,tension:743000,grades:"N80,L80,P110"},
+{f:"Casing",od:11.750,wt:54.00,id:10.880,wall:0.435,drift:10.755,collapse:3000,burst:4100,tension:844000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:11.750,wt:60.00,id:10.772,wall:0.489,drift:10.647,collapse:3710,burst:4460,tension:939000,grades:"N80,L80,P110,Q125"},
+
+/* 13-3/8" — typical surface casing */
+{f:"Casing",od:13.375,wt:48.00,id:12.715,wall:0.330,drift:12.590,collapse:1640,burst:3090,tension:754000,grades:"J55,K55,N80"},
+{f:"Casing",od:13.375,wt:54.50,id:12.615,wall:0.380,drift:12.490,collapse:2090,burst:3540,tension:859000,grades:"J55,N80,L80"},
+{f:"Casing",od:13.375,wt:61.00,id:12.515,wall:0.430,drift:12.390,collapse:2620,burst:3890,tension:951000,grades:"N80,L80,P110"},
+{f:"Casing",od:13.375,wt:68.00,id:12.415,wall:0.480,drift:12.290,collapse:3200,burst:4260,tension:1055000,grades:"N80,L80,P110,Q125"},
+{f:"Casing",od:13.375,wt:72.00,id:12.347,wall:0.514,drift:12.222,collapse:3680,burst:4530,tension:1128000,grades:"N80,L80,P110,Q125"},
+
+/* 16" */
+{f:"Casing",od:16.000,wt:65.00,id:15.250,wall:0.375,drift:15.125,collapse:1390,burst:2580,tension:1019000,grades:"K55,N80,L80"},
+{f:"Casing",od:16.000,wt:75.00,id:15.124,wall:0.438,drift:14.999,collapse:1750,burst:3010,tension:1184000,grades:"K55,N80,L80,P110"},
+{f:"Casing",od:16.000,wt:84.00,id:15.010,wall:0.495,drift:14.885,collapse:2170,burst:3350,tension:1322000,grades:"N80,L80,P110"},
+{f:"Casing",od:16.000,wt:109.00,id:14.688,wall:0.656,drift:14.563,collapse:3900,burst:4360,tension:1714000,grades:"N80,L80,P110,Q125"},
+
+/* 18-5/8" */
+{f:"Casing",od:18.625,wt:87.50,id:17.755,wall:0.435,drift:17.630,collapse:1490,burst:2510,tension:1361000,grades:"K55,N80,L80"},
+{f:"Casing",od:18.625,wt:97.00,id:17.567,wall:0.529,drift:17.442,collapse:1950,burst:3060,tension:1526000,grades:"K55,N80,L80,P110"},
+
+/* 20" — conductor / drive pipe */
+{f:"Casing",od:20.000,wt:94.00,id:19.124,wall:0.438,drift:18.999,collapse:1130,burst:2390,tension:1473000,grades:"K55,N80"},
+{f:"Casing",od:20.000,wt:106.50,id:18.936,wall:0.532,drift:18.811,collapse:1480,burst:2800,tension:1676000,grades:"K55,N80,L80"},
+{f:"Casing",od:20.000,wt:133.00,id:18.730,wall:0.635,drift:18.605,collapse:2100,burst:3250,tension:1960000,grades:"K55,N80,L80,P110"},
 ];
-
+</script>
+<script>
 // ================================================================
 // STATE
 // ================================================================
-const S={current:'ref',rows:[],stream:null,image:null,od:0,id_:0,wall_:0,
-  cap:{capFt:0,totBbl:0,dispFt:0},ann:{annCap:0,annVol:0,hyd:0}};
+const S={
+  current:'ref', rows:[], stream:null, image:null,
+  od:0, id_:0, wall_:0,
+  cap:{capFt:0,totBbl:0,dispFt:0},
+  ann:{annCap:0,annVol:0,hyd:0}
+};
 const fmt=(n,d=2)=>Number.isFinite(n)?Number(n).toFixed(d):'—';
-const $ = id=>document.getElementById(id);
+const $=id=>document.getElementById(id);
 const talliedDepth=()=>S.rows.length?Number(S.rows[S.rows.length-1].cum||0):0;
 
 // ================================================================
 // NAV
 // ================================================================
-const navOrder=['ref','cap','ann','tally','res'];
 const viewMap={ref:'pref',cap:'pcap',ann:'pann',tally:'ptally',res:'pres'};
 function showView(v){
   S.current=v;
-  navOrder.forEach(k=>$(viewMap[k]).classList.toggle('hidden',k!==v));
+  Object.keys(viewMap).forEach(k=>$(viewMap[k]).classList.toggle('hidden',k!==v));
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
 }
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.v)));
@@ -657,11 +685,11 @@ function applyRef(){
   $('fId').value=row.id.toFixed(3);
   $('fWall').value=row.wall.toFixed(3);
   $('fDrift').value=row.drift.toFixed(3);
-  $('fCollapse').value=row.collapse>0?row.collapse.toLocaleString():'N/A (drill string)';
-  $('fBurst').value=row.burst>0?row.burst.toLocaleString():'N/A (drill string)';
+  $('fCollapse').value=row.collapse<99999?row.collapse.toLocaleString():'N/A (DC/HWDP)';
+  $('fBurst').value=row.burst.toLocaleString();
   $('fTension').value=row.tension.toLocaleString();
   $('fGrades').value=row.grades;
-  $('refPills').innerHTML=`<div class="pill good">${f} ${od}" &nbsp;${wt} lb/ft &nbsp;— ID: ${row.id.toFixed(3)}"  Drift: ${row.drift.toFixed(3)}"</div>`;
+  $('refPills').innerHTML=`<div class="pill good">${f} ${od}" ${wt} lb/ft — ID: ${row.id.toFixed(3)}"  Drift: ${row.drift.toFixed(3)}"</div>`;
   $('kOd').textContent=od+' in'; $('kId').textContent=row.id.toFixed(3)+' in';
   $('cOd').value=od; $('cId').value=row.id; $('aOd').value=od;
 }
@@ -676,7 +704,43 @@ $('copyRefBtn').addEventListener('click',()=>{
 });
 
 // ================================================================
-// ANNULUS CASING DROPDOWNS
+// TALLY PIPE SELECTOR
+// ================================================================
+function initTallyFamilies(){
+  $('tallyFamily').innerHTML=families().map(f=>`<option>${f}</option>`).join('');
+  fillTallyOds();
+}
+function fillTallyOds(){
+  const f=$('tallyFamily').value;
+  const ods=[...new Set(DB.filter(x=>x.f===f).map(x=>x.od))].sort((a,b)=>a-b);
+  $('tallyOd').innerHTML=ods.map(o=>`<option value="${o}">${o}"</option>`).join('');
+  fillTallyWts();
+}
+function fillTallyWts(){
+  const f=$('tallyFamily').value, od=parseFloat($('tallyOd').value);
+  const wts=DB.filter(x=>x.f===f&&x.od===od).map(x=>x.wt).sort((a,b)=>a-b);
+  $('tallyWt').innerHTML=wts.map(w=>`<option value="${w}">${w} lb/ft</option>`).join('');
+  updateTallyBadge();
+}
+function updateTallyBadge(){
+  const f=$('tallyFamily').value, od=$('tallyOd').value, wt=$('tallyWt').value;
+  const grade=$('tallyGrade').value||'—';
+  const conn=$('tallyConn').value||'—';
+  const badge=$('tallyPipeBadge');
+  badge.classList.remove('hidden');
+  $('tallyPipeBadgeText').textContent=`${f} ${od}" ${wt} lb/ft | Grade: ${grade} | Conn: ${conn}`;
+  const od_=parseFloat(od), wt_=parseFloat(wt);
+  const row=DB.find(x=>x.f===f&&x.od===od_&&x.wt===wt_);
+  if(row){S.od=od_;S.id_=row.id;S.wall_=row.wall;$('kOd').textContent=od_+' in';$('kId').textContent=row.id.toFixed(3)+' in';}
+}
+$('tallyFamily').addEventListener('change',fillTallyOds);
+$('tallyOd').addEventListener('change',fillTallyWts);
+$('tallyWt').addEventListener('change',updateTallyBadge);
+$('tallyGrade').addEventListener('input',updateTallyBadge);
+$('tallyConn').addEventListener('input',updateTallyBadge);
+
+// ================================================================
+// ANNULUS DROPDOWNS
 // ================================================================
 function initAnnDrops(){
   const ods=[...new Set(DB.filter(x=>x.f==='Casing').map(x=>x.od))].sort((a,b)=>a-b);
@@ -690,13 +754,13 @@ function fillAnnWts(){
 }
 $('aCsgOd').addEventListener('change',fillAnnWts);
 $('lookupAnnBtn').addEventListener('click',()=>{
-  const od=parseFloat($('aCsgOd').value),wt=parseFloat($('aCsgWt').value);
+  const od=parseFloat($('aCsgOd').value), wt=parseFloat($('aCsgWt').value);
   const row=DB.find(x=>x.f==='Casing'&&x.od===od&&x.wt===wt);
   if(row){
     $('aCsgId').value=row.id.toFixed(3);
-    $('annStatus').innerHTML=`<div class="pill good">Casing ID locked: ${row.id.toFixed(3)}" &nbsp;(${od}" &nbsp;${wt} lb/ft)</div>`;
-  } else {
-    $('annStatus').innerHTML='<div class="pill warn">No match. Verify OD and weight selection.</div>';
+    $('annStatus').innerHTML=`<div class="pill good">Casing ID: ${row.id.toFixed(3)}" (${od}" ${wt} lb/ft)</div>`;
+  }else{
+    $('annStatus').innerHTML='<div class="pill warn">No match found.</div>';
   }
 });
 
@@ -720,20 +784,18 @@ function runCap(){
 }
 $('runCapBtn').addEventListener('click',runCap);
 
-// ================================================================
-// ANNULUS
-// ================================================================
 function runAnn(){
   const pOd=parseFloat($('aOd').value||0);
   const csgId=parseFloat($('aCsgId').value||0);
   const hole=parseFloat($('aHole').value||0);
   const outer=csgId||hole;
   const len=parseFloat($('aLen').value||0);
-  const mw=parseFloat($('aMw').value||0);
-  const depth=parseFloat($('aHydDepth').value||0);
-  if(!outer||!pOd)return;
-  const annCap=Math.max(0,((outer*outer)-(pOd*pOd))/1029.4);
-  const annVol=annCap*len, hyd=0.052*mw*depth;
+  const mw=parseFloat($('aMw').value||9.5);
+  const tvd=parseFloat($('aHydDepth').value||0);
+  if(!pOd||!outer)return;
+  const annCap=((outer*outer)-(pOd*pOd))/1029.4;
+  const annVol=annCap*len;
+  const hyd=0.052*mw*tvd;
   $('rAnnCap').textContent=fmt(annCap,4)+' bbl/ft';
   $('rAnnVol').textContent=fmt(annVol,2)+' bbl';
   $('rHyd').textContent=fmt(hyd,0)+' psi';
@@ -745,362 +807,269 @@ $('runAnnBtn').addEventListener('click',runAnn);
 // ================================================================
 // TALLY TABLE
 // ================================================================
-const tbody=$('tbody');
-const FAMILIES=families();
-function addRow(r={}){
-  S.rows.push({
-    joint:r.joint??S.rows.length+1,
-    len:r.len??'',
-    cum:r.cum??'',
-    fam:r.fam??($('selFamily').value||FAMILIES[0]),
-    grade:r.grade??'',
-    notes:r.notes??''
-  });
-  renderRows();
-}
 function renderRows(){
+  const tbody=$('tbody');
   tbody.innerHTML='';
   S.rows.forEach((r,i)=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td><input type="number" min="1" value="${r.joint}" data-i="${i}" data-k="joint"></td>
+      <td><input type="number" min="1" value="${r.joint}" data-i="${i}" data-k="joint" style="width:60px"></td>
       <td><input type="number" step="0.01" value="${r.len}" data-i="${i}" data-k="len" placeholder="ft"></td>
-      <td><input type="number" step="0.01" value="${r.cum}" data-i="${i}" data-k="cum" placeholder="cumulative"></td>
-      <td><select data-i="${i}" data-k="fam">${FAMILIES.map(f=>`<option${r.fam===f?' selected':''}>${f}</option>`).join('')}</select></td>
-      <td><input type="text" value="${r.grade}" data-i="${i}" data-k="grade" placeholder="e.g. S135"></td>
-      <td><input type="text" value="${r.notes}" data-i="${i}" data-k="notes" placeholder="optional"></td>
-      <td><button class="btn-g" style="min-height:38px;padding:5px 9px;font-size:13px" data-del="${i}">✕</button></td>`;
+      <td><input type="number" value="${r.cum}" data-i="${i}" data-k="cum" readonly style="background:#f4f7fa;color:var(--muted)"></td>
+      <td><input type="text" value="${r.notes||''}" data-i="${i}" data-k="notes" placeholder="optional"></td>
+      <td><button style="background:#fee2e2;border:1px solid #fca5a5;color:#b43030;min-height:36px;padding:4px 10px;border-radius:10px;font-size:13px" data-del="${i}">✕</button></td>`;
     tbody.appendChild(tr);
   });
-  tbody.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',e=>{
-    const i=Number(e.target.dataset.i), k=e.target.dataset.k;
-    S.rows[i][k]=(['len','cum','joint'].includes(k))?e.target.valueAsNumber:e.target.value;
-    updateKpis();
+  tbody.querySelectorAll('input').forEach(el=>el.addEventListener('change',e=>{
+    const i=Number(e.target.dataset.i),k=e.target.dataset.k;
+    if(k==='joint'||k==='len') S.rows[i][k]=parseFloat(e.target.value)||0;
+    else S.rows[i][k]=e.target.value;
+    if(k==='len') rebuild();
+    else updateFooter();
   }));
   tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{
-    S.rows.splice(Number(e.target.dataset.del),1); renderRows(); updateKpis();
+    S.rows.splice(Number(e.target.dataset.del),1);
+    rebuild();
   }));
+  updateFooter();
+}
+
+function rebuild(){
+  let cum=0;
+  S.rows.forEach((r,i)=>{r.joint=i+1;const l=parseFloat(r.len)||0;cum+=l;r.cum=parseFloat(cum.toFixed(2));});
+  renderRows();
   updateKpis();
 }
-function rebuild(){
-  let s=0;
-  S.rows.forEach((r,i)=>{
-    r.joint=i+1;
-    const l=parseFloat(r.len)||0; s+=l; r.cum=parseFloat(s.toFixed(2));
-  });
+
+function updateFooter(){
+  const totalLen=S.rows.reduce((s,r)=>s+(parseFloat(r.len)||0),0);
+  $('footJoints').textContent=S.rows.length+' joint'+(S.rows.length!==1?'s':'');
+  $('footTotal').textContent=fmt(totalLen,2)+' ft total';
+  $('footCum').textContent=talliedDepth()>0?fmt(talliedDepth(),2)+' ft cumulative':'—';
+  $('kJoints').textContent=S.rows.length;
+  $('kDepth').textContent=fmt(talliedDepth(),1)+' ft';
+}
+
+function addRow(){
+  S.rows.push({joint:S.rows.length+1,len:'',cum:'',notes:''});
   renderRows();
+  setTimeout(()=>{const rows=$('tbody').querySelectorAll('tr');if(rows.length)rows[rows.length-1].scrollIntoView({behavior:'smooth',block:'nearest'});},60);
 }
+
 function validate(){
-  if(!S.rows.length){$('tallyStatus').innerHTML='<div class="pill warn">No rows to validate</div>';return;}
-  let prev=0, pass=true, msgs=[];
+  if(!S.rows.length){$('tallyStatus').innerHTML='<div class="pill warn">No rows</div>';return;}
+  let pass=true,msgs=[];
+  let prev=0;
   S.rows.forEach((r,i)=>{
-    if(Number(r.joint)!==i+1){pass=false;msgs.push('Joint number error at row '+(i+1));}
-    if(!(parseFloat(r.len)>0)){pass=false;msgs.push('Missing or zero length at row '+(i+1));}
-    if(parseFloat(r.cum)<prev){pass=false;msgs.push('Cumulative decrease at row '+(i+1));}
-    prev=parseFloat(r.cum)||0;
+    if(!(parseFloat(r.len)>0)){pass=false;msgs.push('Missing length — row '+(i+1));}
+    if(parseFloat(r.len)<10||parseFloat(r.len)>55) msgs.push('Unusual length ('+r.len+' ft) at joint '+(i+1));
+    if(parseFloat(r.cum)<prev){pass=false;msgs.push('Cumulative decrease — row '+(i+1));}
+    prev=parseFloat(r.cum)||prev;
   });
-  $('tallyStatus').innerHTML=`<div class="pill ${pass?'good':'warn'}">${pass?'All tally checks pass':'Tally has issues — review flagged rows'}</div>`
-    +msgs.slice(0,5).map(m=>`<div class="pill">${m}</div>`).join('');
+  $('tallyStatus').innerHTML=
+    `<div class="pill ${pass&&!msgs.length?'good':'warn'}">${pass&&!msgs.length?'All checks pass':'Issues found'}</div>`
+    +msgs.slice(0,8).map(m=>`<div class="pill">${m}</div>`).join('');
 }
-$('addRowBtn').addEventListener('click',()=>addRow());
+
+$('addRowBtn').addEventListener('click',addRow);
 $('rebuildBtn').addEventListener('click',rebuild);
 $('validateBtn').addEventListener('click',validate);
 
+$('clearTallyBtn').addEventListener('click',()=>{
+  if(!confirm('Clear all tally rows? Job header and pipe selection stay.')) return;
+  S.rows=[]; renderRows();
+  $('tallyStatus').innerHTML='<div class="pill">No rows yet</div>';
+  $('ocrReviewWrap').classList.add('hidden');
+  $('ocrMsg').style.display='none';
+  S_ocrParsed=[];
+});
+
+$('clearAllBtn').addEventListener('click',()=>{
+  if(!confirm('Reset everything for a new well?')) return;
+  S.rows=[];S.od=0;S.id_=0;S.wall_=0;
+  S.cap={capFt:0,totBbl:0,dispFt:0};S.ann={annCap:0,annVol:0,hyd:0};
+  S_ocrParsed=[];S.image=null;
+  ['jobWell','jobSection','tallyGrade','tallyConn'].forEach(id=>$(id).value='');
+  $('jobDate').value=new Date().toISOString().slice(0,10);
+  $('tallyPipeBadge').classList.add('hidden');
+  $('imgWrap').innerHTML='<div class="preview-hint" id="imgHint">Captured or uploaded image appears here</div>';
+  $('ocrRunBtn').disabled=true;$('ocrRunBtn').textContent='Read tally (capture image first)';
+  $('ocrProgressWrap').classList.add('hidden');$('ocrReviewWrap').classList.add('hidden');
+  $('ocrMsg').style.display='none';
+  renderRows();
+  $('kOd').textContent='— in';$('kId').textContent='— in';$('kDepth').textContent='0';$('kJoints').textContent='0';
+  $('tallyStatus').innerHTML='<div class="pill">No rows yet</div>';
+  initRef();initTallyFamilies();
+});
 
 // ================================================================
-// OCR ENGINE — Tesseract.js tally reader
+// OCR — Tesseract.js 5
 // ================================================================
-let S_ocrImage = null;
-let S_ocrParsed = [];
+let S_ocrImage=null, S_ocrParsed=[];
 
 function setImg(url){
-  S.image = url;
-  S_ocrImage = url;
-  const imgWrap = $('imgWrap');
-  imgWrap.innerHTML = `<img src="${url}" alt="Captured tally sheet">`;
-  $('imgHint') && ($('imgHint').style.display='none');
-  const btn = $('ocrRunBtn');
-  btn.disabled = false;
-  btn.textContent = 'Read tally from image';
+  S.image=url;S_ocrImage=url;
+  $('imgWrap').innerHTML=`<img src="${url}" alt="Captured tally sheet" style="width:100%;border-radius:14px;object-fit:contain">`;
+  $('ocrRunBtn').disabled=false;$('ocrRunBtn').textContent='Read tally from image';
 }
 
-// OCR run using Tesseract.js loaded from CDN
 async function runOCR(){
-  if(!S_ocrImage){alert('Capture or upload a tally image first.');return;}
-
-  const btn = $('ocrRunBtn');
-  btn.disabled = true;
-  btn.textContent = 'Reading…';
-
+  if(!S_ocrImage){alert('Capture or upload an image first.');return;}
+  const btn=$('ocrRunBtn');
+  btn.disabled=true;btn.textContent='Reading…';
   $('ocrProgressWrap').classList.remove('hidden');
   $('ocrReviewWrap').classList.add('hidden');
-  $('ocrEmptyMsg').style.display='none';
-  setProgBar(5, 'Loading OCR engine…');
-
+  $('ocrMsg').style.display='none';
+  setProgBar(5,'Loading OCR engine…');
   try{
-    const { createWorker } = Tesseract;
-    const worker = await createWorker('eng', 1, {
-      logger: m => {
-        if(m.status === 'recognizing text'){
-          const pct = Math.round((m.progress||0)*80)+15;
-          setProgBar(pct, `Reading image… ${pct}%`);
-        } else if(m.status === 'loading tesseract core'){
-          setProgBar(10, 'Loading OCR core…');
-        } else if(m.status === 'initializing tesseract'){
-          setProgBar(15, 'Initializing engine…');
-        } else if(m.status === 'loading language traineddata'){
-          setProgBar(20, 'Loading language model…');
-        } else if(m.status === 'initializing api'){
-          setProgBar(25, 'Starting recognition…');
-        }
+    const {createWorker}=Tesseract;
+    const worker=await createWorker('eng',1,{
+      logger:m=>{
+        if(m.status==='recognizing text') setProgBar(20+Math.round((m.progress||0)*70),'Recognizing… '+Math.round((m.progress||0)*100)+'%');
+        else if(m.status==='loading tesseract core') setProgBar(8,'Loading engine…');
+        else if(m.status==='initializing tesseract') setProgBar(12,'Initializing…');
+        else if(m.status==='loading language traineddata') setProgBar(16,'Loading language data…');
+        else if(m.status==='initializing api') setProgBar(19,'Starting API…');
       }
     });
-
-    setProgBar(15, 'Running recognition…');
-    const result = await worker.recognize(S_ocrImage);
+    const result=await worker.recognize(S_ocrImage);
     await worker.terminate();
-    setProgBar(95, 'Parsing tally rows…');
-
-    const parsed = parseTallyText(result.data);
-    S_ocrParsed = parsed;
-    setProgBar(100, `Found ${parsed.length} row${parsed.length!==1?'s':''} — review below`);
-
+    setProgBar(95,'Parsing rows…');
+    const parsed=parseTallyText(result.data.text||'');
+    S_ocrParsed=parsed;
+    setProgBar(100,`Done — ${parsed.length} row${parsed.length!==1?'s':''} found`);
     renderOcrReview(parsed);
     $('ocrReviewWrap').classList.remove('hidden');
-
-  } catch(err){
-    setProgBar(0, 'OCR failed: ' + err.message);
-    console.error('OCR error:', err);
-    $('ocrEmptyMsg').style.display='block';
-    $('ocrEmptyMsg').textContent = 'OCR could not read the image. Try a clearer photo with good lighting and flat perspective.';
+  }catch(err){
+    setProgBar(0,'OCR error: '+err.message);
+    $('ocrMsg').style.display='block';
+    $('ocrMsg').textContent='Could not read image. Try a clearer, well-lit photo with flat perspective and dark ink.';
   }
-
-  btn.disabled = false;
-  btn.textContent = 'Re-read image';
+  btn.disabled=false;btn.textContent='Re-read image';
 }
 
-function setProgBar(pct, label){
-  const bar = $('ocrProgBar');
-  const lbl = $('ocrProgLabel');
-  if(bar) bar.style.width = pct + '%';
-  if(lbl) lbl.textContent = label;
+function setProgBar(pct,label){
+  const bar=$('ocrProgBar'),lbl=$('ocrProgLabel');
+  if(bar) bar.style.width=pct+'%';
+  if(lbl) lbl.textContent=label;
 }
 
-// ================================================================
-// TALLY PARSER — extract rows from OCR text
-// ================================================================
-function parseTallyText(ocrData){
-  // Use word-level data with bounding boxes when available
-  const lines = ocrData.text ? ocrData.text.split('\n') : [];
-  const parsed = [];
-
-  // Regex patterns for field recognition
-  const reDecimal = /\b(\d{1,3}(?:\.\d{0,3})?)\b/g;
-  const reInt = /^\s*(\d{1,3})\s*$/;
-
-  // Group words into logical rows using Tesseract line text
-  // Strategy: scan each line for patterns matching tally rows
-  // A tally row typically has: [joint_num] [joint_length] [cumulative] [optional note]
-  // Numbers: joint# is small integer (1-999), lengths are 20-50 ft range, cum is increasing
-
-  lines.forEach((line, lineIdx) => {
-    const trimmed = line.trim();
-    if(!trimmed) return;
-
-    // Extract all numbers from this line
-    const nums = [];
+function parseTallyText(raw){
+  const lines=raw.split('\n');
+  const parsed=[];
+  lines.forEach((line,lineIdx)=>{
+    const trimmed=line.trim();
+    if(!trimmed||trimmed.length<2) return;
+    const tokens=[];
+    const numRe=/(\d{1,4}(?:[.,]\d{1,3})?)/g;
     let m;
-    const numRe = /(\d{1,4}(?:\.\d{1,3})?)/g;
-    while((m = numRe.exec(trimmed)) !== null){
-      nums.push({ val: parseFloat(m[1]), raw: m[1], pos: m.index });
+    while((m=numRe.exec(trimmed))!==null){
+      const val=parseFloat(m[1].replace(',','.'));
+      if(!isNaN(val)) tokens.push({val,raw:m[1],pos:m.index});
     }
-    if(nums.length < 2) return; // need at least 2 numbers for a tally row
-
-    // Classify numbers
-    // Joint number: first number that looks like an integer 1-999
-    // Length: decimal in reasonable pipe length range (15-55 ft)
-    // Cumulative: larger decimal, typically > joint length
-
-    let jointNum = null, jointLen = null, cumLen = null;
-    let confidence = 'high';
-
-    // First candidate: small integer for joint number
-    const intCandidates = nums.filter(n => Number.isInteger(n.val) && n.val >= 1 && n.val <= 9999);
-    const lenCandidates = nums.filter(n => n.val >= 10 && n.val <= 60);
-    const cumCandidates = nums.filter(n => n.val > 20);
-
-    if(intCandidates.length > 0) jointNum = intCandidates[0].val;
-    if(lenCandidates.length > 0) jointLen = lenCandidates[0].val;
-    if(cumCandidates.length > 1){
-      // Cumulative is usually the largest number on the line, or the rightmost large decimal
-      cumLen = Math.max(...cumCandidates.map(n=>n.val));
-    } else if(cumCandidates.length === 1 && cumCandidates[0].val !== jointLen){
-      cumLen = cumCandidates[0].val;
-    }
-
-    // Confidence flags
-    if(jointNum === null) confidence = 'low';
-    if(jointLen === null) confidence = 'low';
-    if(jointLen !== null && (jointLen < 15 || jointLen > 55)) confidence = 'low';
-    if(cumLen !== null && jointLen !== null && cumLen < jointLen) confidence = 'low';
-    if(nums.length === 2 && jointNum !== null && jointLen !== null){
-      // Only 2 numbers: joint# and length, no cumulative — normal for some tally formats
-      cumLen = null;
-    }
-
-    // Extract any non-numeric text on the line as potential note
-    const noteText = trimmed.replace(/[\d.\s,]/g, '').trim();
-    const note = noteText.length > 0 && noteText.length < 40 ? noteText : '';
-
-    // Only add if we have at minimum a joint length
-    if(jointLen !== null || (nums.length >= 2)){
-      parsed.push({
-        joint: jointNum,
-        len: jointLen,
-        cum: cumLen,
-        note: note,
-        confidence: confidence,
-        rawLine: trimmed,
-        lineIdx: lineIdx
-      });
-    }
+    if(tokens.length<2) return;
+    let jointNum=null,jointLen=null,confidence='high';
+    for(const t of tokens){if(Number.isInteger(t.val)&&t.val>=1&&t.val<=9999){jointNum=t.val;break;}}
+    const lenCandidates=tokens.filter(t=>t.val>=10&&t.val<=60);
+    if(lenCandidates.length) jointLen=lenCandidates[0].val;
+    if(!jointNum||!jointLen) confidence='low';
+    if(jointLen&&(jointLen<15||jointLen>55)) confidence='low';
+    const noteRaw=trimmed.replace(/(\d{1,4}(?:[.,]\d{1,3})?)/g,'').replace(/[\s,.|]+/g,' ').trim();
+    const note=noteRaw.length>0&&noteRaw.length<60?noteRaw:'';
+    if(jointLen!=null) parsed.push({joint:jointNum,len:jointLen,cum:null,note,confidence,rawLine:trimmed,lineIdx});
   });
-
-  // Post-process: sort by joint number if available, rebuild cumulative if missing
-  const withJoint = parsed.filter(r => r.joint !== null);
-  const withoutJoint = parsed.filter(r => r.joint === null);
-
-  const sorted = withJoint.sort((a,b) => a.joint - b.joint).concat(withoutJoint);
-
-  // If cumulative is missing for all rows, rebuild it
-  const hasCum = sorted.some(r => r.cum !== null);
-  if(!hasCum){
-    let running = 0;
-    sorted.forEach(r => {
-      if(r.len !== null){ running += r.len; r.cum = parseFloat(running.toFixed(2)); }
-    });
-  }
-
-  // Auto-assign joint numbers if missing
-  sorted.forEach((r, i) => {
-    if(r.joint === null) r.joint = i + 1;
-  });
-
-  return sorted;
+  parsed.sort((a,b)=>{if(a.joint===null&&b.joint===null)return a.lineIdx-b.lineIdx;if(a.joint===null)return 1;if(b.joint===null)return -1;return a.joint-b.joint;});
+  parsed.forEach((r,i)=>{if(r.joint===null)r.joint=i+1;});
+  let cum=0;
+  parsed.forEach(r=>{cum+=r.len||0;r.cum=parseFloat(cum.toFixed(2));});
+  return parsed;
 }
 
-// ================================================================
-// OCR REVIEW TABLE
-// ================================================================
 function renderOcrReview(rows){
-  const tbody = $('ocrReviewBody');
-  tbody.innerHTML = '';
-  $('ocrReviewStatus').innerHTML = '';
-
+  const tbody=$('ocrReviewBody');
+  tbody.innerHTML='';
+  $('ocrReviewStatus').innerHTML='';
   if(!rows.length){
-    $('ocrEmptyMsg').style.display='block';
-    $('ocrEmptyMsg').textContent = 'No tally rows could be extracted. Try a clearer image with better lighting.';
+    $('ocrMsg').style.display='block';
+    $('ocrMsg').textContent='No rows extracted. Try a clearer, well-lit photo.';
     return;
   }
-
-  const highConf = rows.filter(r=>r.confidence==='high').length;
-  const lowConf = rows.filter(r=>r.confidence==='low').length;
-  $('ocrReviewStatus').innerHTML =
-    `<div class="pill good">${highConf} high-confidence row${highConf!==1?'s':''}</div>` +
-    (lowConf > 0 ? `<div class="pill warn">${lowConf} row${lowConf!==1?'s':''} need review (highlighted)</div>` : '');
-
-  rows.forEach((r, i) => {
-    const tr = document.createElement('tr');
-    tr.className = 'ocr-review-row ' + (r.confidence === 'high' ? 'ok-conf' : 'low-conf');
-    const confClass = r.confidence === 'high' ? 'conf-high' : 'conf-low';
-    const confLabel = r.confidence === 'high' ? 'Good' : 'Review';
-    tr.innerHTML = `
-      <td><input type="number" class="ocr-edit" data-i="${i}" data-k="joint" value="${r.joint||''}" style="width:70px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit"></td>
-      <td><input type="number" step="0.01" class="ocr-edit" data-i="${i}" data-k="len" value="${r.len||''}" style="width:90px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit" placeholder="ft"></td>
-      <td><input type="number" step="0.01" class="ocr-edit" data-i="${i}" data-k="cum" value="${r.cum||''}" style="width:100px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit" placeholder="cumulative"></td>
-      <td><span class="conf-badge ${confClass}">${confLabel}</span><div style="font-size:10px;color:var(--muted);margin-top:3px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.rawLine}">${r.rawLine.substring(0,25)}${r.rawLine.length>25?'…':''}</div></td>
+  const hi=rows.filter(r=>r.confidence==='high').length,lo=rows.filter(r=>r.confidence==='low').length;
+  $('ocrReviewStatus').innerHTML=`<div class="pill good">${hi} high-confidence row${hi!==1?'s':''}</div>`+(lo?`<div class="pill warn">${lo} need review</div>`:'');
+  rows.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.className='ocr-review-row '+(r.confidence==='high'?'ocr-row-ok':'ocr-row-low');
+    tr.innerHTML=`
+      <td><input type="number" class="ocr-edit" data-i="${i}" data-k="joint" value="${r.joint||''}" style="width:65px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit"></td>
+      <td><input type="number" step="0.01" class="ocr-edit" data-i="${i}" data-k="len" value="${r.len||''}" style="width:85px;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit"></td>
+      <td style="color:var(--muted);font-size:13px">${r.cum!=null?r.cum+' ft':'—'}</td>
+      <td><span class="conf-badge ${r.confidence==='high'?'conf-high':'conf-low'}">${r.confidence==='high'?'Good':'Review'}</span></td>
       <td><input type="checkbox" class="ocr-check" data-i="${i}" ${r.confidence==='high'?'checked':''}></td>`;
     tbody.appendChild(tr);
   });
-
-  // Live edit updates parsed array
-  tbody.querySelectorAll('.ocr-edit').forEach(el => {
-    el.addEventListener('change', e => {
-      const i = Number(e.target.dataset.i), k = e.target.dataset.k;
-      S_ocrParsed[i][k] = parseFloat(e.target.value) || e.target.value;
+  tbody.querySelectorAll('.ocr-edit').forEach(el=>{
+    el.addEventListener('change',e=>{
+      const i=Number(e.target.dataset.i),k=e.target.dataset.k;
+      const v=parseFloat(e.target.value);
+      S_ocrParsed[i][k]=isNaN(v)?e.target.value:v;
+      let cum=0;
+      S_ocrParsed.forEach(r=>{cum+=r.len||0;r.cum=parseFloat(cum.toFixed(2));});
+      $('ocrReviewBody').querySelectorAll('tr').forEach((tr,idx)=>{
+        const cells=tr.querySelectorAll('td');
+        if(cells[2]) cells[2].textContent=S_ocrParsed[idx]?.cum!=null?S_ocrParsed[idx].cum+' ft':'—';
+      });
     });
   });
 }
 
 function acceptOcrRows(checkedOnly){
-  const tbody = $('ocrReviewBody');
-  const checkboxes = tbody.querySelectorAll('.ocr-check');
-  const fam = $('selFamily').value || 'Drill Pipe';
-
-  S_ocrParsed.forEach((r, i) => {
-    if(checkedOnly && !checkboxes[i]?.checked) return;
-    S.rows.push({
-      joint: r.joint || (S.rows.length + 1),
-      len: r.len || '',
-      cum: r.cum || '',
-      fam: fam,
-      grade: '',
-      notes: r.note || ''
-    });
+  const checkboxes=$('ocrReviewBody').querySelectorAll('.ocr-check');
+  S_ocrParsed.forEach((r,i)=>{
+    if(checkedOnly&&!checkboxes[i]?.checked) return;
+    S.rows.push({joint:r.joint||(S.rows.length+1),len:r.len||'',cum:'',notes:r.note||''});
   });
-
-  renderRows();
   rebuild();
   $('ocrReviewWrap').classList.add('hidden');
-  $('ocrEmptyMsg').style.display='block';
-  $('ocrEmptyMsg').textContent = `${checkedOnly?'Checked':'All'} OCR rows accepted into tally table below. Review and correct as needed.`;
-  S_ocrParsed = [];
-
-  // Scroll to tally table
-  $('tbody').scrollIntoView({behavior:'smooth', block:'nearest'});
+  $('ocrMsg').style.display='block';
+  $('ocrMsg').textContent='Rows accepted — review and correct in the tally table below.';
+  S_ocrParsed=[];
+  setTimeout(()=>$('tbody').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
 }
 
-$('ocrRunBtn').addEventListener('click', runOCR);
-$('ocrAcceptAllBtn').addEventListener('click', () => acceptOcrRows(false));
-$('ocrAcceptCheckedBtn').addEventListener('click', () => acceptOcrRows(true));
-$('ocrClearBtn').addEventListener('click', () => {
-  S_ocrParsed = [];
-  $('ocrReviewWrap').classList.add('hidden');
-  $('ocrEmptyMsg').style.display='block';
-  $('ocrEmptyMsg').textContent = 'Run OCR above to see parsed rows here.';
-});
+$('ocrRunBtn').addEventListener('click',runOCR);
+$('ocrAcceptAllBtn').addEventListener('click',()=>acceptOcrRows(false));
+$('ocrAcceptCheckedBtn').addEventListener('click',()=>acceptOcrRows(true));
+$('ocrClearBtn').addEventListener('click',()=>{S_ocrParsed=[];$('ocrReviewWrap').classList.add('hidden');$('ocrMsg').style.display='none';});
 
 // ================================================================
-// CAMERA (updated)
+// CAMERA
 // ================================================================
 const vid=$('vid'),cnvs=$('cnvs');
 async function openCam(){
   try{
     S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
-    vid.srcObject=S.stream; vid.classList.remove('hidden');
+    vid.srcObject=S.stream;vid.classList.remove('hidden');
     $('camHint').classList.add('hidden');
-    $('snapBtn').classList.remove('hidden'); $('stopCamBtn').classList.remove('hidden');
-    $('openCamBtn').classList.add('hidden');
-  }catch(e){alert('Camera access denied or unavailable. Use the Upload photo button instead.');}
+    $('snapBtn').classList.remove('hidden');$('stopCamBtn').classList.remove('hidden');$('openCamBtn').classList.add('hidden');
+  }catch(e){alert('Camera access denied. Use the Upload photo button instead.');}
 }
 function stopCam(){
   if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}
-  vid.classList.add('hidden'); vid.srcObject=null;
-  $('snapBtn').classList.add('hidden'); $('stopCamBtn').classList.add('hidden');
-  $('openCamBtn').classList.remove('hidden');
+  vid.classList.add('hidden');vid.srcObject=null;
+  $('snapBtn').classList.add('hidden');$('stopCamBtn').classList.add('hidden');$('openCamBtn').classList.remove('hidden');
   if(!S.image)$('camHint').classList.remove('hidden');
 }
 $('openCamBtn').addEventListener('click',openCam);
 $('stopCamBtn').addEventListener('click',stopCam);
 $('snapBtn').addEventListener('click',()=>{
   const ctx=cnvs.getContext('2d');
-  cnvs.width=vid.videoWidth; cnvs.height=vid.videoHeight;
+  cnvs.width=vid.videoWidth;cnvs.height=vid.videoHeight;
   ctx.drawImage(vid,0,0,cnvs.width,cnvs.height);
-  setImg(cnvs.toDataURL('image/jpeg',0.95)); stopCam();
+  setImg(cnvs.toDataURL('image/jpeg',0.95));stopCam();
 });
 $('imgFile').addEventListener('change',e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  const r=new FileReader(); r.onload=ev=>setImg(ev.target.result); r.readAsDataURL(f);
+  const f=e.target.files?.[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>setImg(ev.target.result);r.readAsDataURL(f);
 });
 
 // ================================================================
@@ -1110,19 +1079,17 @@ function updateKpis(){
   if(S.od) $('kOd').textContent=S.od+' in';
   if(S.id_) $('kId').textContent=S.id_.toFixed(3)+' in';
   $('kDepth').textContent=fmt(talliedDepth(),1)+' ft';
-  const circ=(S.cap.totBbl||0)+(S.ann.annVol||0);
-  $('kCirc').textContent=fmt(circ,2)+' bbl';
+  $('kJoints').textContent=S.rows.length;
 }
 
 // ================================================================
-// RUN ALL / RESULTS
+// RESULTS / SUMMARY
 // ================================================================
 function runAll(){
-  runCap(); runAnn();
+  runCap();runAnn();
   const td=talliedDepth()||parseFloat($('cLen').value||0);
-  $('rrDepth').textContent=fmt(td,1)+' ft';
-  $('rrId').textContent=fmt(S.id_,3)+' in';
-  $('rrWall').textContent=fmt(S.wall_,3)+' in';
+  $('rrDepth').textContent=fmt(td,1)+' ft';$('rrJoints').textContent=S.rows.length;
+  $('rrId').textContent=fmt(S.id_,3)+' in';$('rrWall').textContent=fmt(S.wall_,3)+' in';
   $('rrOd').textContent=S.od?S.od+' in':'—';
   $('rrCap').textContent=fmt(S.cap.capFt,4)+' bbl/ft';
   $('rrStr').textContent=fmt(S.cap.totBbl,2)+' bbl';
@@ -1132,50 +1099,40 @@ function runAll(){
   const circ=(S.cap.totBbl||0)+(S.ann.annVol||0);
   $('rrCirc').textContent=fmt(circ,2)+' bbl';
   $('rrHyd').textContent=fmt(S.ann.hyd,0)+' psi';
-  $('rrJoints').textContent=S.rows.length;
-  updateKpis(); showView('res');
+  updateKpis();
 }
-$('runAllBtn').addEventListener('click',runAll);
 $('runAllInner').addEventListener('click',runAll);
-$('nextBtn').addEventListener('click',()=>{
-  const i=navOrder.indexOf(S.current);
-  showView(navOrder[Math.min(i+1,navOrder.length-1)]);
-});
+document.querySelectorAll('.nav button[data-v="res"]').forEach(b=>b.addEventListener('click',runAll));
 
 // ================================================================
 // DEMO
 // ================================================================
 $('demoBtn').addEventListener('click',()=>{
-  // Load 5" 19.5 drill pipe from catalog
-  $('selFamily').value='Drill Pipe';
-  fillOds();
-  $('selOd').value='5';
-  fillWts();
-  $('selWt').value='19.50';
-  applyRef();
-  $('cLen').value=10000;
-  $('aLen').value=10000;
-  $('aHydDepth').value=10000;
-  // 9-5/8" 47 lb/ft casing
-  $('aCsgOd').value='9.625';
-  fillAnnWts();
-  $('aCsgWt').value='47';
-  $('lookupAnnBtn').click();
-  // Demo tally rows
-  S.rows=[
-    {joint:1,len:31.2,cum:31.2,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:2,len:30.9,cum:62.1,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:3,len:31.4,cum:93.5,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:4,len:30.8,cum:124.3,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:5,len:31.1,cum:155.4,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:6,len:30.7,cum:186.1,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:7,len:31.3,cum:217.4,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:8,len:31.0,cum:248.4,fam:'Drill Pipe',grade:'S135',notes:''},
-    {joint:9,len:30.8,cum:279.2,fam:'Drill Pipe',grade:'S135',notes:'Dented box'},
-    {joint:10,len:31.2,cum:310.4,fam:'Drill Pipe',grade:'S135',notes:''}
-  ];
-  renderRows();
-  showView('tally');
+  $('jobWell').value='State 21H';
+  $('jobSection').value='7" Production Casing';
+  $('jobDate').value=new Date().toISOString().slice(0,10);
+  $('tallyFamily').value='Casing';fillTallyOds();
+  setTimeout(()=>{
+    $('tallyOd').value='7';fillTallyWts();
+    setTimeout(()=>{
+      $('tallyWt').value='26';$('tallyGrade').value='N80';$('tallyConn').value='BTC';
+      updateTallyBadge();
+      S.rows=[
+        {joint:1,len:40.2,cum:40.2,notes:''},{joint:2,len:40.1,cum:80.3,notes:''},
+        {joint:3,len:39.8,cum:120.1,notes:''},{joint:4,len:40.3,cum:160.4,notes:''},
+        {joint:5,len:40.0,cum:200.4,notes:''},{joint:6,len:39.9,cum:240.3,notes:''},
+        {joint:7,len:40.2,cum:280.5,notes:'Dented box — flagged'},{joint:8,len:40.1,cum:320.6,notes:''},
+        {joint:9,len:40.0,cum:360.6,notes:''},{joint:10,len:39.7,cum:400.3,notes:'Short joint'},
+      ];
+      rebuild();
+      $('selFamily').value='Casing';fillOds();
+      setTimeout(()=>{$('selOd').value='7';fillWts();setTimeout(()=>{$('selWt').value='26';applyRef();},30);},30);
+      $('cLen').value=400;$('aLen').value=400;$('aHydDepth').value=12000;$('aMw').value=11.2;
+      $('aCsgOd').value='9.625';fillAnnWts();
+      setTimeout(()=>{$('aCsgWt').value='47';$('lookupAnnBtn').click();},50);
+      showView('tally');
+    },30);
+  },30);
 });
 
 // ================================================================
@@ -1184,15 +1141,33 @@ $('demoBtn').addEventListener('click',()=>{
 $('exportBtn').addEventListener('click',()=>{
   if(!S.rows.length){alert('No tally rows to export.');return;}
   const now=new Date().toISOString().slice(0,10);
-  const fam=$('selFamily').value, od=S.od||'—', wt=$('selWt').value||'—';
-  const meta=`Echelon IPM Tubular Tally,Exported:,${now}\nFamily:,${fam},OD:,${od},Weight:,${wt} lb/ft\nID:,${S.id_.toFixed(3)||'—'},Wall:,${S.wall_.toFixed(3)||'—'}\n`;
-  const hdr='Joint,Length (ft),Cumulative (ft),Pipe Family,Grade,Notes\n';
-  const rows=S.rows.map(r=>[r.joint,r.len,r.cum,r.fam,r.grade,r.notes||''].join(',')).join('\n');
-  const totals=`\nTotal joints,${S.rows.length},,,,\nTotal depth (ft),${fmt(talliedDepth(),2)},,,,`;
+  const well=$('jobWell').value||'—';
+  const section=$('jobSection').value||'—';
+  const date=$('jobDate').value||now;
+  const fam=$('tallyFamily').value||'—';
+  const od=$('tallyOd').value||'—';
+  const wt=$('tallyWt').value||'—';
+  const grade=$('tallyGrade').value||'—';
+  const conn=$('tallyConn').value||'—';
+  const dbRow=DB.find(x=>x.f===fam&&x.od===parseFloat(od)&&x.wt===parseFloat(wt));
+  const totalLen=S.rows.reduce((s,r)=>s+(parseFloat(r.len)||0),0);
+  const meta=[
+    'Echelon IPM Tubular Tally',
+    `Well / Job:,${well}`,`String / Section:,${section}`,`Date:,${date}`,`Exported:,${now}`,'',
+    `Pipe Family:,${fam}`,`OD (in):,${od}`,`Weight (lb/ft):,${wt}`,
+    `ID (in):,${dbRow?dbRow.id.toFixed(3):'—'}`,`Wall (in):,${dbRow?dbRow.wall.toFixed(3):'—'}`,
+    `Drift (in):,${dbRow?dbRow.drift.toFixed(3):'—'}`,`Grade:,${grade}`,`Connection:,${conn}`,
+    `API Grades:,${dbRow?dbRow.grades:'—'}`,'',
+  ].join('\n');
+  const hdr='Joint #,Length (ft),Cumulative (ft),Family,OD (in),Weight (lb/ft),Grade,Connection,Notes\n';
+  const rows=S.rows.map(r=>[r.joint,r.len,r.cum,fam,od,wt,grade,conn,r.notes||''].join(',')).join('\n');
+  const totals=`\nTOTAL JOINTS,${S.rows.length}\nTOTAL LENGTH (ft),${fmt(totalLen,2)}\nFINAL CUMULATIVE (ft),${fmt(talliedDepth(),2)}`;
   const csv=meta+hdr+rows+totals;
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`echelon_tally_${od}in_${now}.csv`; a.click();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`echelon_tally_${well.replace(/\s+/g,'_')}_${section.replace(/\s+/g,'_')}_${now}.csv`;
+  a.click();
 });
 
 // ================================================================
@@ -1200,8 +1175,9 @@ $('exportBtn').addEventListener('click',()=>{
 // ================================================================
 initRef();
 initAnnDrops();
-addRow();
-updateKpis();
+initTallyFamilies();
+$('jobDate').value=new Date().toISOString().slice(0,10);
+updateFooter();
 </script>
 </body>
 </html>
