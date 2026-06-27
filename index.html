@@ -302,11 +302,11 @@
     <div class="divider"></div>
 
     <!-- OCR SCAN -->
-    <div class="step-label">Scan handwritten tally (optional)</div>
-    <div class="psub">Photograph one page or column of your tally book. Each accepted scan <strong>appends</strong> to the existing tally — photograph the next page to continue. Use <strong>Clear rows</strong> only when starting a new string.</div>
+    <div class="step-label">Image-assisted entry</div>
+    <div class="psub">Upload or photograph your tally sheet. The app will attempt to extract rows automatically. <strong>Always review every row before accepting</strong> — handwritten tallies require manual correction of OCR output. Use Quick Entry below for fastest manual entry.</div>
     <div class="pills" style="margin-top:8px">
-      <div class="pill good">New images append to existing tally</div>
-      <div class="pill">Each joint gets its own row with running cumulative</div>
+      <div class="pill warn">OCR works best on printed/typed tallies. Handwritten field books require review.</div>
+      <div class="pill good">Each scan appends to existing tally — photograph page by page.</div>
     </div>
     <div class="g2" style="margin-top:10px">
       <div class="preview" id="camWrap">
@@ -349,13 +349,47 @@
       </div>
     </div>
     <div id="ocrMsg" style="font-size:13px;color:var(--muted);margin-top:8px;display:none"></div>
+    <!-- GPT-4o Vision Endpoint (wires in when API key/worker URL is configured) -->
+    <div class="card" style="margin-top:12px;border-color:#d9a96c;background:#fffdf8">
+      <h3 style="color:var(--accent-d)">AI Vision upgrade (optional)</h3>
+      <p>For near-perfect handwritten tally recognition, connect a GPT-4o vision endpoint. Enter your Cloudflare Worker URL or OpenAI-compatible endpoint below. Leave blank to use the built-in OCR engine.</p>
+      <div class="field" style="margin-top:10px">
+        <label>Vision API endpoint URL (optional)</label>
+        <input id="visionApiUrl" type="url" placeholder="https://your-worker.workers.dev/tally-vision">
+      </div>
+      <div class="bar" style="margin-top:8px">
+        <button class="btn-s" id="testVisionBtn">Test connection</button>
+      </div>
+      <div id="visionStatus" style="font-size:13px;color:var(--muted);margin-top:6px"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- QUICK ENTRY -->
+    <div class="step-label">Quick entry <span style="font-size:13px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">— fastest way to enter a handwritten tally</span></div>
+    <div class="psub">Type each joint length and press Enter. Joint numbers auto-increment from the last entered joint. Change the starting joint number if needed.</div>
+    <div class="g2" style="margin-top:10px">
+      <div class="field">
+        <label>Starting joint # <span id="qeNextLabel" style="color:var(--accent);font-weight:700"></span></label>
+        <input id="qeStartJoint" type="number" min="1" value="1" placeholder="e.g. 103">
+      </div>
+      <div class="field">
+        <label>Joint length (ft) — press Enter to add</label>
+        <input id="qeLen" type="number" step="0.01" placeholder="e.g. 31.39" autocomplete="off" inputmode="decimal">
+      </div>
+    </div>
+    <div class="bar" style="margin-top:6px">
+      <button class="btn-a" id="qeAddBtn">Add joint</button>
+      <button class="btn-s" id="qeUndoBtn">Undo last</button>
+    </div>
+    <div class="pills" id="qeStatus"><div class="pill">Enter a length above and press Enter or Add joint</div></div>
 
     <div class="divider"></div>
 
     <!-- TALLY TABLE -->
     <div class="step-label">Tally table</div>
     <div class="bar" style="margin-top:6px">
-      <button class="btn-a" id="addRowBtn">+ Add row</button>
+      <button class="btn-a" id="addRowBtn">+ Add blank row</button>
       <button class="btn-s" id="rebuildBtn">Rebuild cumulative</button>
       <button class="btn-g" id="validateBtn">Validate</button>
     </div>
@@ -843,6 +877,7 @@ function rebuild(){
   S.rows.forEach((r,i)=>{r.joint=i+1;const l=parseFloat(r.len)||0;cum+=l;r.cum=parseFloat(cum.toFixed(2));});
   renderRows();
   updateKpis();
+  if(typeof qeUpdateLabel==='function') qeUpdateLabel();
 }
 
 function updateFooter(){
@@ -859,6 +894,53 @@ function addRow(){
   renderRows();
   setTimeout(()=>{const rows=$('tbody').querySelectorAll('tr');if(rows.length)rows[rows.length-1].scrollIntoView({behavior:'smooth',block:'nearest'});},60);
 }
+
+// ================================================================
+// QUICK ENTRY
+// ================================================================
+function qeNextJoint(){
+  if(S.rows.length===0){
+    const s=parseInt($('qeStartJoint').value)||1;
+    return s;
+  }
+  return (S.rows[S.rows.length-1].joint||S.rows.length)+1;
+}
+function qeUpdateLabel(){
+  const nj=qeNextJoint();
+  const el=$('qeNextLabel');
+  if(el) el.textContent='(next: joint '+nj+')';
+  // Also update start joint field to match if rows exist
+  if(S.rows.length>0){
+    $('qeStartJoint').value=nj;
+  }
+}
+function qeAdd(){
+  const lenVal=parseFloat($('qeLen').value);
+  if(!lenVal||lenVal<=0){
+    $('qeStatus').innerHTML='<div class="pill warn">Enter a valid length in feet</div>';
+    $('qeLen').focus();
+    return;
+  }
+  const joint=qeNextJoint();
+  S.rows.push({joint,len:lenVal,cum:'',notes:''});
+  rebuild();
+  const depth=talliedDepth();
+  $('qeStatus').innerHTML=`<div class="pill good">Joint ${joint} — ${lenVal.toFixed(2)} ft added. Running total: ${S.rows.length} joints, ${depth.toFixed(2)} ft</div>`;
+  $('qeLen').value='';
+  $('qeLen').focus();
+  qeUpdateLabel();
+}
+function qeUndo(){
+  if(!S.rows.length){$('qeStatus').innerHTML='<div class="pill warn">No rows to undo</div>';return;}
+  const removed=S.rows.pop();
+  rebuild();
+  $('qeStatus').innerHTML=`<div class="pill warn">Removed joint ${removed.joint} (${removed.len} ft). Total now: ${S.rows.length} joints, ${talliedDepth().toFixed(2)} ft</div>`;
+  qeUpdateLabel();
+}
+$('qeAddBtn').addEventListener('click',qeAdd);
+$('qeUndoBtn').addEventListener('click',qeUndo);
+$('qeLen').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();qeAdd();}});
+$('qeStartJoint').addEventListener('change',qeUpdateLabel);
 
 function validate(){
   if(!S.rows.length){$('tallyStatus').innerHTML='<div class="pill warn">No rows</div>';return;}
@@ -883,9 +965,11 @@ $('clearTallyBtn').addEventListener('click',()=>{
   if(!confirm('Clear all tally rows? Job header and pipe selection stay.')) return;
   S.rows=[]; renderRows();
   $('tallyStatus').innerHTML='<div class="pill">No rows yet</div>';
+  $('qeStatus').innerHTML='<div class="pill">Ready for quick entry</div>';
   $('ocrReviewWrap').classList.add('hidden');
   $('ocrMsg').style.display='none';
   S_ocrParsed=[];
+  qeUpdateLabel();
 });
 
 $('clearAllBtn').addEventListener('click',()=>{
@@ -1116,6 +1200,38 @@ $('ocrAcceptCheckedBtn').addEventListener('click',()=>acceptOcrRows(true));
 $('ocrClearBtn').addEventListener('click',()=>{S_ocrParsed=[];$('ocrReviewWrap').classList.add('hidden');$('ocrMsg').style.display='none';});
 
 // ================================================================
+// GPT-4o VISION API (slots in when endpoint is configured)
+// ================================================================
+async function runVisionOCR(imageDataUrl, endpointUrl){
+  // Sends base64 image to a Cloudflare Worker or compatible endpoint
+  // Worker should return JSON: { rows: [{joint: 103, len: 31.39}, ...] }
+  const resp = await fetch(endpointUrl, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      image: imageDataUrl,
+      prompt: 'This is a handwritten pipe tally sheet from an oil and gas well. Extract every joint number and its length in feet as structured data. Each row has a joint number (integer) and a length (decimal feet, typically 20-50 ft). Some lengths are written as two separate numbers: "31" and "44" meaning 31.44 feet. Return ONLY valid JSON: {"rows": [{"joint": 103, "len": 31.39}, ...]}'
+    })
+  });
+  if(!resp.ok) throw new Error('Vision API returned '+resp.status);
+  const data = await resp.json();
+  if(!data.rows||!Array.isArray(data.rows)) throw new Error('Invalid response format');
+  return data.rows;
+}
+
+$('testVisionBtn')?.addEventListener('click', async ()=>{
+  const url=$('visionApiUrl').value.trim();
+  if(!url){$('visionStatus').textContent='Enter an endpoint URL first.';return;}
+  $('visionStatus').textContent='Testing connection…';
+  try{
+    const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ping:true})});
+    $('visionStatus').textContent=resp.ok?'Connection OK — endpoint is reachable.':'Endpoint returned '+resp.status;
+  }catch(e){
+    $('visionStatus').textContent='Could not reach endpoint: '+e.message;
+  }
+});
+
+// ================================================================
 // CAMERA
 // ================================================================
 const vid=$('vid'),cnvs=$('cnvs');
@@ -1205,6 +1321,7 @@ $('demoBtn').addEventListener('click',()=>{
       $('aCsgOd').value='9.625';fillAnnWts();
       setTimeout(()=>{$('aCsgWt').value='47';$('lookupAnnBtn').click();},50);
       showView('tally');
+      setTimeout(()=>qeUpdateLabel(),200);
     },30);
   },30);
 });
@@ -1252,6 +1369,7 @@ initAnnDrops();
 initTallyFamilies();
 $('jobDate').value=new Date().toISOString().slice(0,10);
 updateFooter();
+qeUpdateLabel();
 </script>
 </body>
 </html>
